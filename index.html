@@ -649,6 +649,7 @@ const BEACHES = [
     document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active', p.id==='panel-'+name));
     if(name==='mappa' && map){ setTimeout(()=>{ google.maps.event.trigger(map,'resize'); }, 60); }
     window.scrollTo({top:0,behavior:'smooth'});
+    setTimeout(enrichVisible, 200);
   }
   function goToCard(id){
     let group='food', tab='ristoranti';
@@ -781,7 +782,17 @@ const BEACHES = [
   }
 
   /* Lazy enrichment via IntersectionObserver */
-  let io=null;
+  let io=null, _scrollT=null;
+  // Fallback robusto all'IntersectionObserver: arricchisce le card visibili nel pannello attivo.
+  function enrichVisible(){
+    if(!HAS_KEY || !PlaceClass) return;
+    const active = document.querySelector('.panel.active'); if(!active) return;
+    active.querySelectorAll('.card[data-group]').forEach(card=>{
+      if(card.dataset.enriched) return;
+      const r = card.getBoundingClientRect();
+      if(r.top < (window.innerHeight+500) && r.bottom > -500) enrichCard(card);
+    });
+  }
   function setupObserver(){
     if(!HAS_KEY) return;
     io = new IntersectionObserver((entries)=>{
@@ -794,6 +805,8 @@ const BEACHES = [
       });
     }, {rootMargin:'200px'});
     document.querySelectorAll('#grid-ristoranti .card, #grid-vedere .card, #grid-spiagge .card').forEach(c=>io.observe(c));
+    window.addEventListener('scroll', ()=>{ clearTimeout(_scrollT); _scrollT=setTimeout(enrichVisible,150); }, {passive:true});
+    enrichVisible();
   }
 
   /* ---------- MAP ---------- */
