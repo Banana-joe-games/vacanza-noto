@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Val di Noto — Guida Gastronomica & di Viaggio · Base: Masseria degli Ulivi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#faf6ef; --ink:#2c2218; --muted:#7a6a57; --line:#e7ddcd;
+    --terracotta:#c0563b; --terracotta-d:#9c3f29;
+    --gold:#bf9b43; --teal:#1b8a9a; --purple:#7a4ea0; --sea:#2f7fb5;
+    --card:#ffffff; --shadow:0 6px 22px rgba(60,40,20,.10);
+    --r:16px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:'Inter',system-ui,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,.serif{font-family:'Cormorant Garamond',Georgia,serif}
+  a{color:var(--terracotta-d)}
+  img{max-width:100%;display:block}
+
+  /* ===== Header / hero ===== */
+  header.hero{
+    background:linear-gradient(135deg,#9c3f29 0%,#c0563b 45%,#bf9b43 100%);
+    color:#fff;padding:30px 20px 22px;position:relative;overflow:hidden;
+  }
+  header.hero::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 80% -10%,rgba(255,255,255,.18),transparent 45%);pointer-events:none}
+  .hero-inner{max-width:1200px;margin:0 auto;position:relative;z-index:1}
+  .hero h1{font-size:clamp(30px,5vw,52px);line-height:1.02;margin:0 0 6px;font-weight:700;letter-spacing:.5px}
+  .hero p.sub{margin:0;font-size:clamp(15px,2vw,19px);opacity:.95;font-weight:500}
+  .hero .base{display:inline-flex;align-items:center;gap:8px;margin-top:14px;background:rgba(255,255,255,.16);
+    border:1px solid rgba(255,255,255,.3);padding:8px 14px;border-radius:30px;font-size:14px;backdrop-filter:blur(4px)}
+  .hero .base b{font-weight:700}
+
+  /* ===== Tabs ===== */
+  .tabbar{position:sticky;top:0;z-index:50;background:rgba(250,246,239,.92);backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);padding:8px 12px}
+  .tabbar-inner{max-width:1200px;margin:0 auto;display:flex;gap:8px;overflow-x:auto;scrollbar-width:thin}
+  .tab{border:1px solid var(--line);background:#fff;color:var(--ink);padding:9px 16px;border-radius:30px;
+    font-weight:600;font-size:14.5px;white-space:nowrap;cursor:pointer;transition:.18s;display:flex;align-items:center;gap:7px}
+  .tab:hover{border-color:var(--terracotta);color:var(--terracotta-d)}
+  .tab.active{background:var(--terracotta);border-color:var(--terracotta);color:#fff;box-shadow:0 4px 12px rgba(192,86,59,.35)}
+
+  main{max-width:1200px;margin:0 auto;padding:18px 16px 60px}
+  .panel{display:none;animation:fade .25s ease}
+  .panel.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  .panel-head{margin:6px 0 14px}
+  .panel-head h2{font-size:clamp(26px,4vw,38px);margin:0 0 4px;font-weight:700}
+  .panel-head p{margin:0;color:var(--muted);max-width:760px}
+
+  /* ===== Setup banner ===== */
+  .setup{background:#fff;border:1px solid var(--line);border-left:5px solid var(--gold);border-radius:14px;
+    padding:16px 18px;margin:0 0 18px;box-shadow:var(--shadow)}
+  .setup h3{margin:0 0 6px;font-size:22px}
+  .setup ol{margin:8px 0 4px;padding-left:20px}
+  .setup li{margin:5px 0}
+  .setup code{background:#f3ece0;padding:2px 7px;border-radius:6px;font-size:13px;border:1px solid var(--line)}
+  .setup details{margin-top:8px}
+  .setup summary{cursor:pointer;font-weight:600;color:var(--terracotta-d)}
+  .pill-ok{display:inline-block;background:#e7f4ec;color:#1d7a47;border:1px solid #b9e0c8;padding:3px 10px;border-radius:20px;font-size:12.5px;font-weight:600}
+  .pill-warn{display:inline-block;background:#fdeee6;color:#9c3f29;border:1px solid #f3cdba;padding:3px 10px;border-radius:20px;font-size:12.5px;font-weight:600}
+
+  /* ===== Map ===== */
+  #map{width:100%;height:66vh;min-height:420px;border-radius:var(--r);box-shadow:var(--shadow);background:#dfeaf0}
+  .map-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 12px}
+  .legend{display:flex;flex-wrap:wrap;gap:6px}
+  .lg{display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:30px;border:1px solid var(--line);
+    background:#fff;cursor:pointer;font-weight:600;font-size:13.5px;user-select:none;transition:.15s}
+  .lg .dot{width:12px;height:12px;border-radius:50%}
+  .lg.off{opacity:.4;filter:grayscale(.6)}
+  .map-note{font-size:13px;color:var(--muted);margin:10px 2px 0}
+  #mapFallback{display:none;padding:26px;text-align:center;background:#fff;border:1px dashed var(--line);border-radius:var(--r)}
+
+  /* ===== Search ===== */
+  .searchrow{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+  .searchrow input[type=search]{flex:1;min-width:200px;padding:11px 14px;border:1px solid var(--line);border-radius:30px;
+    font-size:15px;background:#fff}
+  .chip{border:1px solid var(--line);background:#fff;padding:8px 13px;border-radius:30px;font-size:13px;font-weight:600;
+    cursor:pointer;color:var(--muted);transition:.15s}
+  .chip:hover{border-color:var(--terracotta)}
+  .chip.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+  /* ===== Cards grid ===== */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);
+    display:flex;flex-direction:column;transition:transform .18s,box-shadow .18s;scroll-margin-top:90px}
+  .card:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(60,40,20,.16)}
+  .card.flash{animation:flash 1.6s ease}
+  @keyframes flash{0%,100%{box-shadow:var(--shadow)}20%{box-shadow:0 0 0 4px rgba(191,155,67,.7)}}
+  .card .imgwrap{position:relative;height:188px;background:#efe7da;overflow:hidden}
+  .card .imgwrap img{width:100%;height:100%;object-fit:cover}
+  .card .imgwrap .ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:54px;
+    background:linear-gradient(135deg,#efe2cf,#e4d3bb)}
+  .card .imgwrap.split{display:flex}
+  .card .imgwrap.split .half{position:relative;width:50%;height:100%;overflow:hidden}
+  .card .imgwrap.split .half.place{border-right:2px solid #fff}
+  .card .imgwrap.split .half .ph{font-size:38px}
+  .dishtag{position:absolute;bottom:6px;left:6px;background:rgba(44,34,24,.8);color:#fff;font-size:10px;
+    font-weight:600;padding:2px 8px;border-radius:12px;letter-spacing:.3px}
+  .card .imgwrap .striprow{display:flex;height:100%;width:100%}
+  .card .imgwrap .striprow img{flex:1 1 0;min-width:0;height:100%;object-fit:cover}
+  .card .imgwrap .striprow img+img{border-left:2px solid #fff}
+  .card .badges{position:absolute;top:10px;left:10px;display:flex;flex-wrap:wrap;gap:6px;max-width:88%}
+  .badge{background:rgba(44,34,24,.82);color:#fff;font-size:11.5px;font-weight:600;padding:4px 9px;border-radius:20px;backdrop-filter:blur(3px)}
+  .badge.type{background:rgba(255,255,255,.92);color:var(--ink)}
+  .badge.star{background:var(--gold);color:#fff}
+  .badge.luc{background:linear-gradient(135deg,#c0398f,#7d3cc0);color:#fff;box-shadow:0 1px 7px rgba(125,60,192,.5);font-weight:700}
+  .badge.near{background:#2e7d52;color:#fff;font-weight:700}
+  .badge.dist{position:absolute;top:10px;right:10px;background:rgba(27,138,154,.92)}
+  .card .body{padding:14px 15px 16px;display:flex;flex-direction:column;gap:9px;flex:1}
+  .card h3{margin:0;font-size:23px;line-height:1.1}
+  .card .town{font-size:12.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-top:-3px}
+  .card .desc{font-size:14px;color:#4a3c2c;margin:0}
+  .rating{display:flex;align-items:center;gap:7px;font-size:13.5px;color:var(--muted);min-height:18px}
+  .stars{color:var(--gold);letter-spacing:1px;font-size:15px}
+  .spec{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px}
+  .spec span{background:#f5efe4;border:1px solid var(--line);color:#6a5a45;font-size:11.5px;padding:3px 8px;border-radius:14px}
+  .meta{font-size:13px;color:#4a3c2c;display:flex;flex-direction:column;gap:3px}
+  .meta a{color:var(--terracotta-d);text-decoration:none;font-weight:600}
+  .meta a:hover{text-decoration:underline}
+  .hours summary{cursor:pointer;font-weight:600;font-size:13px;color:var(--ink)}
+  .hours ul{margin:6px 0 0;padding-left:16px;font-size:12.5px;color:var(--muted)}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;padding-top:6px}
+  .btn{flex:1;min-width:120px;text-align:center;border:none;border-radius:10px;padding:10px;font-size:13.5px;font-weight:700;
+    cursor:pointer;text-decoration:none;transition:.15s;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+  .btn.dir{background:var(--teal);color:#fff}
+  .btn.dir:hover{background:#157180}
+  .btn.gm{background:#f3ece0;color:var(--ink);border:1px solid var(--line)}
+  .btn.gm:hover{border-color:var(--terracotta)}
+  .reviews{border-top:1px dashed var(--line);padding-top:10px;margin-top:2px;display:flex;flex-direction:column;gap:9px}
+  .reviews .rv{font-size:12.7px;color:#52442f;background:#faf5ec;border-radius:10px;padding:8px 10px}
+  .reviews .rv .who{font-weight:700;color:var(--ink);display:flex;justify-content:space-between;gap:8px;font-size:12px}
+  .reviews .rv .who small{color:var(--muted);font-weight:500}
+  .loading{font-size:12.5px;color:var(--muted);font-style:italic}
+  .where{margin:2px 0 0;font-size:13.5px}
+  .where b{font-weight:700}
+  .where .lk{display:inline-block;margin:3px 5px 0 0}
+  .tag-eat{display:inline-block;background:var(--terracotta);color:#fff;border-radius:6px;padding:2px 7px;font-size:11.5px;font-weight:600;text-decoration:none}
+  .tag-eat:hover{background:var(--terracotta-d)}
+  .tag-eat.txt{background:#efe7da;color:#6a5a45}
+
+  footer{max-width:1200px;margin:0 auto;padding:24px 16px 50px;color:var(--muted);font-size:12.5px;border-top:1px solid var(--line)}
+  .count{font-size:13px;color:var(--muted);margin:0 0 12px}
+  @media(max-width:560px){
+    .card .imgwrap{height:170px}
+    #map{height:58vh}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ CONFIG ============ -->
+<script>
+  /*  ┌──────────────────────────────────────────────────────────────┐
+      │  INCOLLA QUI LA TUA CHIAVE GOOGLE MAPS PLATFORM                │
+      │  (vedi le istruzioni "Setup chiave Google" nella prima pagina) │
+      └──────────────────────────────────────────────────────────────┘  */
+  const GOOGLE_MAPS_API_KEY = "AIzaSyAI0Xo8_71Q633gP9O73s2ij92V16CSOOg";
+
+  // Base del viaggio
+  const MASSERIA = { lat: 36.96256, lng: 15.04056,
+    name: "Masseria degli Ulivi",
+    addr: "Contrada Porcari, SS287, San Corrado di Fuori, 96017 Noto (SR)",
+    query: "Masseria degli Ulivi, SS287, Noto SR" };
+</script>
+
+<header class="hero">
+  <div class="hero-inner">
+    <h1>Val di Noto</h1>
+    <p class="sub">Guida gastronomica & di viaggio · 7 giorni nel barocco e sul mare della Sicilia sud-orientale</p>
+    <span class="base">🏡 Base: <b>Masseria degli Ulivi</b> · Noto (SR)</span>
+  </div>
+</header>
+
+<nav class="tabbar">
+  <div class="tabbar-inner" id="tabbar">
+    <button class="tab active" data-tab="mappa">🗺️ Mappa</button>
+    <button class="tab" data-tab="piatti">🍝 Piatti tipici</button>
+    <button class="tab" data-tab="ristoranti">🍴 Ristoranti & Bar</button>
+    <button class="tab" data-tab="vedere">🏛️ Da vedere</button>
+    <button class="tab" data-tab="spiagge">🏖️ Spiagge</button>
+  </div>
+</nav>
+
+<main>
+
+  <!-- ===================== MAPPA ===================== -->
+  <section class="panel active" id="panel-mappa">
+    <div id="setupBox"></div>
+    <div class="panel-head">
+      <h2>La mappa del viaggio</h2>
+      <p>Tutti i posti della guida in un colpo d'occhio. Tocca un pin: si apre l'anteprima con foto e valutazione, e da lì il pulsante <b>“Vai alla scheda”</b> ti porta alla card giusta. La 🏡 è la Masseria degli Ulivi.</p>
+    </div>
+    <div class="map-tools">
+      <div class="legend" id="legend">
+        <span class="lg" data-grp="food"><span class="dot" style="background:#c0563b"></span>Mangiare & bar</span>
+        <span class="lg" data-grp="see"><span class="dot" style="background:#7a4ea0"></span>Da vedere</span>
+        <span class="lg" data-grp="beach"><span class="dot" style="background:#1b8a9a"></span>Spiagge</span>
+      </div>
+    </div>
+    <div id="map"></div>
+    <div id="mapFallback">
+      <h3 style="margin:0 0 6px">🗺️ Mappa non attiva</h3>
+      <p style="margin:0;color:var(--muted)">Aggiungi la chiave Google (istruzioni qui sopra) per vedere la mappa interattiva con tutti i pin.<br>Nel frattempo ogni scheda ha comunque il pulsante <b>“Apri su Google Maps”</b>.</p>
+    </div>
+    <p class="map-note">Suggerimento: i tempi “~min in auto” sono stime dalla Masseria; il pulsante <b>Indicazioni</b> in ogni scheda apre il percorso reale e aggiornato su Google Maps.</p>
+  </section>
+
+  <!-- ===================== PIATTI ===================== -->
+  <section class="panel" id="panel-piatti">
+    <div class="panel-head">
+      <h2>Piatti & prodotti tipici</h2>
+      <p>Cosa mangiare nella Val di Noto e dove provarlo al meglio. Tocca i locali in blu per saltare alla loro scheda nel tab Ristoranti.</p>
+    </div>
+    <div class="searchrow">
+      <input type="search" id="search-piatti" placeholder="Cerca un piatto… (es. granita, tonno, cioccolato)">
+      <div id="filter-piatti" class="filters"></div>
+    </div>
+    <p class="count" id="count-piatti"></p>
+    <div class="grid" id="grid-piatti"></div>
+  </section>
+
+  <!-- ===================== RISTORANTI ===================== -->
+  <section class="panel" id="panel-ristoranti">
+    <div class="panel-head">
+      <h2>Ristoranti, trattorie & bar</h2>
+      <p>Orari, telefono, recensioni e foto arrivano in diretta da Google. <b>Indicazioni</b> calcola il percorso dalla Masseria degli Ulivi.</p>
+    </div>
+    <div class="searchrow">
+      <input type="search" id="search-ristoranti" placeholder="Cerca un locale o un piatto…">
+      <div id="filter-ristoranti" class="filters"></div>
+    </div>
+    <p class="count" id="count-ristoranti"></p>
+    <div class="grid" id="grid-ristoranti"></div>
+  </section>
+
+  <!-- ===================== VEDERE ===================== -->
+  <section class="panel" id="panel-vedere">
+    <div class="panel-head">
+      <h2>Cose belle da vedere</h2>
+      <p>Barocco UNESCO, chiese, palazzi, musei, siti archeologici e natura tra Noto, Siracusa, Modica, Ragusa e Scicli.</p>
+    </div>
+    <div class="searchrow">
+      <input type="search" id="search-vedere" placeholder="Cerca un luogo o una città…">
+      <div id="filter-vedere" class="filters"></div>
+    </div>
+    <p class="count" id="count-vedere"></p>
+    <div class="grid" id="grid-vedere"></div>
+  </section>
+
+  <!-- ===================== SPIAGGE ===================== -->
+  <section class="panel" id="panel-spiagge">
+    <div class="panel-head">
+      <h2>Spiagge & cale</h2>
+      <p>Dalla riserva di Vendicari alle cale di Avola fino alla costa di Ragusa. Riserva = ingresso a pagamento e tratti a piedi.</p>
+    </div>
+    <div class="searchrow">
+      <input type="search" id="search-spiagge" placeholder="Cerca una spiaggia o una zona…">
+      <div id="filter-spiagge" class="filters"></div>
+    </div>
+    <p class="count" id="count-spiagge"></p>
+    <div class="grid" id="grid-spiagge"></div>
+  </section>
+
+</main>
+
+<footer>
+  <p><b>Val di Noto — Guida personale.</b> Dati su locali, piatti, monumenti e spiagge raccolti e verificati da fonti pubbliche (siti ufficiali, Guida Michelin, Gambero Rosso, Wikipedia/Wikidata, riserva di Vendicari). Foto, recensioni, orari e numeri di telefono nelle schede arrivano in tempo reale dalle Google Places API quando è inserita la chiave: per natura possono cambiare, verifica sempre prima di partire o prenotare. Le stime “min in auto” dalla Masseria degli Ulivi sono indicative.</p>
+</footer>
+
+<!-- ============ DATA ============ -->
+<script>
+/* Tempi auto (minuti) dalla Masseria degli Ulivi per zona — stime */
+const ZONE = {noto:12,marina:22,avola:18,cavagrande:30,tellaro:20,vendicari:28,marzamemi:35,pachino:35,
+  portopalo:45,siracusa:42,fontanebianche:35,arenella:45,calabernardo:25,palazzolo:28,pantalica:55,
+  modica:50,ragusa:60,scicli:55,donnalucata:60,ispica:42,pozzallo:50,marinaragusa:70,puntasecca:80,chiaramonte:65};
+
+/* ---------- RISTORANTI / BAR ---------- */
+const RESTAURANTS = [
+ {id:'r1',name:'Caffè Sicilia',town:'Noto',z:'noto',type:'pasticceria',price:'€€',lat:36.8908,lng:15.0690,addr:'Corso Vittorio Emanuele 125, Noto',spec:['Granita di mandorla','Cannoli','Biancomangiare','Torrone'],desc:`Dal 1892, il tempio di Corrado Assenza: granite di sola frutta di stagione e pasticceria che ha fatto il giro del mondo (NYT, Netflix).`},
+ {id:'r2',name:'Caffè Costanzo',town:'Noto',z:'noto',type:'pasticceria',price:'€€',lat:36.8916,lng:15.0693,addr:'Via Silvio Spaventa 7/9, Noto',spec:['Granita ai gelsi','Cannoli','Gelati'],desc:`Dal 1969, affacciato sulla scalinata del Duomo. L'alternativa storica al Caffè Sicilia, amatissima dai netini.`},
+ {id:'r3',name:'Ristorante Crocifisso',town:'Noto',z:'noto',type:'ristorante',price:'€€€€',lat:36.8909,lng:15.0707,addr:'Via Principe Umberto 46/48, Noto',star:true,spec:['Menu degustazione','Tonno al BBQ','Agnello ibleo'],desc:`La prima stella Michelin di Noto: lo chef Marco Baglieri unisce rigore nordico e radici barocche in 36 coperti.`},
+ {id:'r4',name:'Anche gli Angeli',town:'Noto',z:'noto',type:'ristorante',price:'€€€',lat:36.8927,lng:15.0680,addr:'Via Arnaldo da Brescia 2, Noto',spec:['Crudo di mare','Pasta fresca','Orto proprio'],desc:`Cucina creativa nella cripta di una chiesa settecentesca; funziona anche come wine-bar e lounge fino a tardi.`},
+ {id:'r5',lucrezia:true,name:"Trattoria Fontana d'Ercole",town:'Noto',z:'noto',type:'trattoria',price:'€€',lat:36.8916,lng:15.0679,addr:'Corso Vittorio Emanuele 59, Noto',spec:['Ravioli ricotta e pistacchio','Tonno a cipuddata','Caponata'],desc:`La trattoria del cuore di Noto: cucina casareccia netina, porzioni generose e prezzi onesti.`},
+ {id:'r6',name:'Trattoria Al Buco',town:'Noto',z:'noto',type:'trattoria',price:'€€',lat:36.8902,lng:15.0710,addr:'Via Zanardelli 1, Noto',spec:['Pasta con le sarde','Caponata','Pesce spada alla matalotta'],desc:`Dal 1957, tre generazioni: la più verace tra le trattorie del centro, ideale a pranzo.`},
+ {id:'r7',name:'Trattoria Giufà',town:'Noto',z:'noto',type:'trattoria',price:'€€',lat:36.8905,lng:15.0686,addr:'Vico Carlo Pisacane 3, Noto',spec:['Caponata','Ravioli al ragù','Polpette su crema di fave'],desc:`Piccola e rustica, cucina netina genuina: una delle migliori per scoprire i sapori di casa.`},
+ {id:'r8',name:'Ristorante Dammuso',town:'Noto',z:'noto',type:'ristorante',price:'€€€',lat:36.8899,lng:15.0700,addr:'Via Rocco Pirri 10/12, Noto',spec:['Sarde a beccafico','Tonno in crosta di pistacchio','Pesce spada all’arancia'],desc:`Sala a volte di pietra e ricette di mare della tradizione, custodite dalla signora Corradina.`},
+ {id:'r9',name:'Rosticceria Palermitana da Andrea',town:'Noto',z:'noto',type:'street food',price:'€',lat:36.8907,lng:15.0726,addr:'Via Matteo Raeli 7, Noto',spec:['Arancine','Panelle','Rosticceria'],desc:`L'indirizzo citato dai netini per le migliori arancine in città, fritte come si deve.`},
+ {id:'r10',lucrezia:true,name:'Ristorante Manna',town:'Lido di Noto',z:'marina',type:'ristorante',price:'€€€€',lat:36.86664,lng:15.12466,addr:'Lungomare Ionio 1, Lido di Noto',spec:['Busiate con calamari','Pastello di coniglio','Arancina dolce'],desc:`Cucina siciliana contemporanea a due passi dal mare di Lido di Noto, in chiave elegante.`},
+ {id:'r11',name:'Baglio Siciliamo',town:'Lido di Noto',z:'marina',type:'ristorante',price:'€€€',lat:36.8580,lng:15.1250,addr:'Lido di Noto',spec:['Arancini','Ricciola alla griglia','Parfait di mandorle'],desc:`In un baglio storico vicino al mare: cucina siciliana di stagione, segnalata dalla Guida Michelin. Solo a cena.`},
+ {id:'r12',name:'Bar Finocchiaro 1858',town:'Avola',z:'avola',type:'pasticceria',price:'€',lat:36.9095,lng:15.1350,addr:'Piazza Umberto I, Avola',spec:['Granita di mandorla di Avola','Latte di mandorla','Torrone'],desc:`Sulla piazza esagonale di Avola, la granita di mandorla pizzuta nel suo paese d'origine.`},
+ {id:'r13',name:'Ci:Vulìa',town:'Avola',z:'avola',type:'ristorante',price:'€€€',lat:36.9120,lng:15.1330,addr:'Via Elsa Morante 2, Avola',spec:['Crudo di gambero rosso','Pasta con i ricci','Frittura di paranza'],desc:`Ristorante con pescheria a vista: scegli il pesce dal banco e te lo cucinano. Tra i migliori per il crudo della provincia.`},
+ {id:'r14',name:'Osteria I Malavoglia',town:'Avola',z:'avola',type:'trattoria',price:'€€',lat:36.9050,lng:15.1500,addr:'Via Aldo Moro 1, Avola',spec:['Caponata di tonno','Pasta alla marinara','Grigliata di mare'],desc:`Pesce fresco e porzioni abbondanti vicino alla vecchia tonnara: il classico di Avola.`},
+ {id:'r15',name:'La Scogliera',town:'Avola',z:'avola',type:'ristorante',price:'€€',lat:36.9038,lng:15.1540,addr:'Via Aldo Moro 121, Avola',spec:['Antipasto di mare','Linguine ai ricci','Pescato alla griglia'],desc:`Fronte mare sulla spiaggia di Pantanello: pesce freschissimo senza fronzoli, amato dai siracusani d'estate.`},
+ {id:'r16',name:'Taverna La Cialoma',town:'Marzamemi',z:'marzamemi',type:'trattoria',price:'€€€',lat:36.7418,lng:15.1176,addr:'Piazza Regina Margherita 23, Marzamemi',spec:['Tartare di tonno rosso','Pasta alle sarde','Crudo di gamberi rossi'],desc:`Sulla piazza più fotografata di Sicilia, la prima trattoria del borgo, fondata da Lina Campisi figlia di rais. In Guida Michelin.`},
+ {id:'r17',lucrezia:true,name:'Cortile Arabo',town:'Marzamemi',z:'marzamemi',type:'ristorante',price:'€€€',lat:36.7419,lng:15.1172,addr:'Piazza Villadorata, Marzamemi',spec:['Crudo di pesce','Menu degustazione di mare','Spaghetti con i ricci'],desc:`In un cortile di origine araba con terrazza sugli scogli: pesce d'autore con echi mediterranei e nordafricani. In Guida Michelin.`},
+ {id:'r18',name:'Ristorante Campisi',town:'Marzamemi',z:'marzamemi',type:'ristorante',price:'€€',lat:36.7417,lng:15.1180,addr:'Via Marzamemi 12, Marzamemi',spec:['Tonno rosso','Busiate con bottarga','Ventresca'],desc:`La famiglia che lavora il tonno dal 1854: praticamente la cucina-vetrina delle loro conserve, sul porticciolo.`},
+ {id:'r19',name:'Liccamùciula',town:'Marzamemi',z:'marzamemi',type:'bar',price:'€€',lat:36.7418,lng:15.1175,addr:'Piazza Regina Margherita 2, Marzamemi',spec:['Granita di fico','Pane cunzato','Aperitivo'],desc:`Bar, libreria e bottega sulla piazza: granita di fico leggendaria e aperitivo con i prodotti del territorio.`},
+ {id:'r20',name:'Al Boccone',town:'Marzamemi',z:'marzamemi',type:'ristorante',price:'€€',lat:36.7415,lng:15.1182,addr:'Via Regina Elena 7, Marzamemi',spec:['Tartare di tonno','Linguine al gambero rosso','Sarde a beccafico'],desc:`Veranda con vista mare e cucina di pesce solida con bottarga locale e pistacchio di Bronte.`},
+ {id:'r21',name:'La Conchiglietta',town:'Marzamemi',z:'marzamemi',type:'ristorante',price:'€€',lat:36.7414,lng:15.1184,addr:'Via Regina Elena 9, Marzamemi',spec:['Linguine ai ricci','Arrosto misto di pesce','Antipasti di mare'],desc:`Terrazza sul mare, porzioni generose e buon rapporto qualità-prezzo per il borgo.`},
+ {id:'r22',name:'Fritti in un Coppo',town:'Marzamemi',z:'marzamemi',type:'street food',price:'€',lat:36.7420,lng:15.1178,addr:'Via Marzamemi 3, Marzamemi',spec:['Frittura di paranza','Calamari fritti','Gamberi'],desc:`Street food vero: pesce freschissimo fritto al momento e servito nel coppo di carta, da mangiare passeggiando.`},
+ {id:'r23',name:'Al Gambero Rosso',town:'Portopalo di Capo Passero',z:'portopalo',type:'ristorante',price:'€€',lat:36.6822,lng:15.1338,addr:'Via Vittorio Emanuele 46, Portopalo',spec:['Crudo di gambero rosso','Orecchiette gambero e lime','Crudi di mare'],desc:`Nel porto dove sbarca il gambero rosso: forse il miglior rapporto qualità-prezzo della zona per il crudo.`},
+ {id:'r24',name:'U Saracenu',town:'Portopalo di Capo Passero',z:'portopalo',type:'ristorante',price:'€€€',lat:36.6820,lng:15.1330,addr:'Via Tonnara 35, Portopalo',spec:['Tartare di gambero rosso','Paccheri pistacchio e gambero','Polpo arrosto'],desc:`Veranda vista mare e cucina di ispirazione arabo-sicula sul pescato di Portopalo.`},
+ {id:'r25',name:'Ristorante Don Camillo',town:'Siracusa',z:'siracusa',type:'ristorante',price:'€€€€',lat:36.0,lng:15.0,_lat:37.0606,_lng:15.2935,addr:'Via della Maestranza 96, Ortigia, Siracusa',spec:['Spaghetti dei sirene (ricci e gamberi)','Sarde a beccafico','Pesce spada'],desc:`Dal 1985 il riferimento di Ortigia: cucina siciliana profonda e costante. In selezione Michelin.`},
+ {id:'r26',name:'Sicilia in Tavola',town:'Siracusa',z:'siracusa',type:'trattoria',price:'€€',lat:37.0624,lng:15.2935,addr:'Via Cavour 28, Ortigia, Siracusa',spec:['Pasta fresca','Spaghetti alle sarde','Ceviche'],desc:`Piccola e sempre piena, a due passi da Piazza Duomo: pasta fatta a mano e tradizione. Prenotazione d'obbligo.`},
+ {id:'r27',lucrezia:true,name:'Trattoria La Foglia',town:'Siracusa',z:'siracusa',type:'trattoria',price:'€€',lat:37.0593,lng:15.2930,addr:'Via Capodieci 29, Ortigia, Siracusa',spec:['Ravioli di ricotta','Sarde a beccafico','Caponata'],desc:`Atmosfera vintage e cucina casalinga siracusana, ottima anche per chi è vegetariano.`},
+ {id:'r28',name:'Caseificio Borderi',town:'Siracusa',z:'siracusa',type:'street food',price:'€',lat:37.0501,lng:15.2965,addr:'Via Emanuele De Benedictis 6, Mercato di Ortigia',spec:['Panini gourmet','Formaggi a latte crudo','Salumi'],desc:`Dal 1936 nel mercato di Ortigia: i panini più famosi dell'isola, fatti davanti a te. Preparati alla fila.`},
+ {id:'r29',name:'Trattoria La Pigna',town:'Siracusa',z:'siracusa',type:'trattoria',price:'€€',lat:37.0599,lng:15.2933,addr:'Via Conciliazione 12, Ortigia, Siracusa',spec:['Spaghetti ai ricci','Crudo di mare','Pescato del giorno'],desc:`Trattoria di famiglia a pochi passi dal Duomo, tra le più amate per il pesce di Ortigia.`},
+ {id:'r30',name:'Le Sorelle Bandiera',town:'Siracusa',z:'siracusa',type:'trattoria',price:'€€',lat:37.0648,lng:15.2902,addr:'Via Trento 29, Siracusa',spec:['Polpo su crema di fave','Caponata','Cucina casalinga'],desc:`Tre sorelle, materie prime dal mercato di Ortigia ogni mattina: la cucina di casa siracusana.`},
+ {id:'r31',name:'Pasticceria Artale',town:'Siracusa',z:'siracusa',type:'pasticceria',price:'€',lat:37.0590,lng:15.2932,addr:'Via Saverio Landolina 32, Ortigia, Siracusa',spec:['Granita al limone','Cannoli','Cassata siracusana'],desc:`Dal 1950 vicino al Duomo: la colazione classica di Ortigia, granita e brioche senza prezzi da turista.`},
+ {id:'r32',name:'Bar Pasticceria Midolo',town:'Siracusa',z:'siracusa',type:'pasticceria',price:'€',lat:37.0699,lng:15.2880,addr:'Corso Umberto I 86, Siracusa',spec:['Arancini al ragù e al burro','Sfinci','Cannoli'],desc:`Dal 1950, all'ingresso di Ortigia: gli arancini più citati della città. Arriva presto, finiscono.`},
+ {id:'r33',name:'Caffè Apollo',town:'Siracusa',z:'siracusa',type:'bar',price:'€',lat:37.0625,lng:15.2932,addr:'Largo XXV Luglio, Ortigia, Siracusa',spec:['Granita di mandorla','Granita al limone'],desc:`Una delle granite più cremose dell'isola, nel cuore di Ortigia.`},
+ {id:'r34',name:'Antica Dolceria Bonajuto',town:'Modica',z:'modica',type:'pasticceria',price:'€€',lat:36.8586,lng:14.7610,addr:'Corso Umberto I 159, Modica',spec:['Cioccolato di Modica','’Mpanatigghi','Nucatoli'],desc:`Dal 1880, la dolceria più antica di Sicilia e custode del cioccolato di Modica lavorato a freddo. Tappa obbligata.`},
+ {id:'r35',lucrezia:true,name:'Accursio Radici',town:'Modica',z:'modica',type:'trattoria',price:'€€€',lat:36.8572,lng:14.7598,addr:'Via Grimaldi 55, Modica',spec:['Polpette di pane','Cannelloni della festa','Cucina della memoria'],desc:`Lo chef ex-stellato Accursio Craparo torna all'osteria di cuore: Sicilia narrata, senza formalità, prezzi onesti.`},
+ {id:'r36',name:'Taverna Nicastro',town:'Modica',z:'modica',type:'trattoria',price:'€€',lat:36.8615,lng:14.7648,addr:'Modica Alta',spec:['Coniglio alla Nicastro','Ravioli al sugo di maiale','Salumi propri'],desc:`Trattoria di famiglia in cima a una scalinata di Modica Alta: ricette di territorio immutate da decenni.`},
+ {id:'r37',name:'Trattoria La Rusticana',town:'Modica',z:'modica',type:'trattoria',price:'€€',lat:36.8540,lng:14.7720,addr:"Viale Medaglie d'Oro 34, Modica",spec:['Coniglio alla stimpirata','Cavatelli','Lolli con le fave'],desc:`Tovaglie a quadri e lavagna del giorno: la modicana più verace e a buon mercato (il coniglio va ordinato prima).`},
+ {id:'r38',name:'Fattoria delle Torri',town:'Modica',z:'modica',type:'ristorante',price:'€€€',lat:36.8590,lng:14.7600,addr:'Vico Napolitano 14, Modica',spec:['Busiate alla carrettiera','Cucina iblea','Menu degustazione'],desc:`In un palazzo settecentesco di Modica Bassa, cucina iblea raffinata gestita da due sorelle. In Guida Michelin.`},
+ {id:'r39',name:'Caffè Adamo',town:'Modica',z:'modica',type:'bar',price:'€',lat:36.8576,lng:14.7605,addr:'Modica',spec:['Cremolata al cioccolato di Modica','Granita di mandorla','Brioche'],desc:`La cremolata al cioccolato qui è un istituto: più densa e ricca di una granita normale.`},
+ {id:'r40',name:'Sabadì',town:'Modica',z:'modica',type:'pasticceria',price:'€€',lat:36.8600,lng:14.7615,addr:'Corso San Giorgio 105, Modica',spec:['Cioccolato di Modica','Tavolette aromatizzate'],desc:`Cioccolato di Modica premiato e innovativo, con cantine di invecchiamento del cioccolato.`},
+ {id:'r41',name:'Duomo (Ciccio Sultano)',town:'Ragusa Ibla',z:'ragusa',type:'ristorante',price:'€€€€',lat:36.9264,lng:14.7407,addr:'Via Capitano Bocchieri 31, Ragusa Ibla',star:true,spec:['Ravioli al modicano','Menu Stupor Mundi','Cucina citrica'],desc:`Due stelle Michelin: lo chef più importante del sud-est siciliano, in Palazzo La Rocca a Ibla. Prenota con largo anticipo.`},
+ {id:'r42',name:'Locanda Don Serafino',town:'Ragusa Ibla',z:'ragusa',type:'ristorante',price:'€€€€',lat:36.9258,lng:14.7398,addr:'Via Avv. Ottaviano 13, Ragusa Ibla',star:true,spec:['Coniglio alla stimpirata','Spaghetti neri ai ricci','Cantina leggendaria'],desc:`Una stella Michelin scavata nella roccia calcarea di Ibla: sapori del territorio ed estetica contemporanea.`},
+ {id:'r43',name:'I Banchi',town:'Ragusa Ibla',z:'ragusa',type:'trattoria',price:'€€',lat:36.9261,lng:14.7408,addr:'Via Orfanotrofio 39, Ragusa Ibla',spec:['Scacce ragusane','Pane a grani antichi','Arancini'],desc:`Ciccio Sultano in versione quotidiana: panificio e cucina in una grotta di Ibla. Menu sempre pieno e accessibile.`},
+ {id:'r44',name:'Trattoria La Bettola',town:'Ragusa Ibla',z:'ragusa',type:'trattoria',price:'€€',lat:36.9270,lng:14.7430,addr:'Largo Camerina 7, Ragusa Ibla',spec:['Caponata','Polpette','Ravioli'],desc:`Dal 1979, una delle prime di Ibla: cucina iblea casalinga, porzioni generose, prezzi gentili.`},
+ {id:'r45',name:'Cucina e Vino',town:'Ragusa Ibla',z:'ragusa',type:'trattoria',price:'€€',lat:36.9253,lng:14.7404,addr:'Via Orfanotrofio 91, Ragusa Ibla',spec:['Cavati al ragù di maiale','Ravioli di ricotta','Paccheri al pesce'],desc:`Osteria Slow Food a due passi dal Duomo: il miglior rapporto qualità-prezzo di Ibla per la cucina del territorio.`},
+ {id:'r46',name:'A Rusticana',town:'Ragusa Ibla',z:'ragusa',type:'trattoria',price:'€€',lat:36.9266,lng:14.7415,addr:'Vico Domenico Morelli 4, Ragusa Ibla',spec:['Cavatelli al sugo di maiale','Ravioli','Formaggio arrosto'],desc:`In un palazzo del Settecento (e set del Commissario Montalbano): pasta fatta a mano e tradizione iblea.`},
+ {id:'r47',name:'Gelati DiVini',town:'Ragusa Ibla',z:'ragusa',type:'gelateria',price:'€',lat:36.9266,lng:14.7414,addr:'Piazza Duomo 20, Ragusa Ibla',spec:['Gelato al passito','Gelato al vino','Pistacchio'],desc:`Gelateria-enoteca in Piazza Duomo: tanti gusti a base di vino siciliano, una rarità assoluta.`},
+ {id:'r48',name:'Cantunèra Ibla',town:'Ragusa Ibla',z:'ragusa',type:'street food',price:'€',lat:36.9270,lng:14.7400,addr:'Largo San Domenico 18, Ragusa Ibla',spec:['Arancine (15 tipi)','Street food ibleo'],desc:`Arancine fritte al momento premiate dal Gambero Rosso come migliori di Sicilia. Chiuso gen–mar.`},
+ {id:'r49',name:'Baqqalà',town:'Scicli',z:'scicli',type:'ristorante',price:'€€',lat:36.7921,lng:14.7024,addr:'Piazza Angelo Ficili 3, Scicli',spec:['Crudo di pesce','Busiata al gambero rosso','Polpo arrosto'],desc:`Il miglior indirizzo di pesce a Scicli: prodotto selezionatissimo, cucina piccola. Prenota.`},
+ {id:'r50',name:'Ristorante La Grotta',town:'Scicli',z:'scicli',type:'ristorante',price:'€€',lat:36.7930,lng:14.7017,addr:'Via Dolomiti 62, Scicli',spec:['Ravioli ricotta e pistacchio','Spaghetti con spigola affumicata'],desc:`Ricavato in una grotta di un antico frantoio: cucina iblea solida in una cornice unica.`},
+ {id:'r51',name:'Osteria Mamma Rosa',town:'Scicli',z:'scicli',type:'trattoria',price:'€€',lat:36.7918,lng:14.7060,addr:'Via Duca degli Abruzzi 1, Scicli',spec:['Ravioli ricotta e sugo di maiale','Sarde','Cucina della memoria'],desc:`Cucina a km 0 fatta in casa, tra le più tradizionali di Scicli.`},
+ {id:'r52',name:'My Name is Tannino',town:'Scicli',z:'scicli',type:'enoteca',price:'€€',lat:36.7915,lng:14.7058,addr:'Via Aleardi 36/38, Scicli',spec:['Aperitivo barocco','Cavatelli al ragù di coniglio','Vini naturali'],desc:`Wine bar con cucina nelle volte di una chiesa: l'aperitivo barocco di Scicli, vini naturali siciliani.`},
+ {id:'r53',name:'Ristorante Majore',town:'Chiaramonte Gulfi',z:'chiaramonte',type:'ristorante',price:'€€',lat:37.0330,lng:14.7030,addr:'Via Martiri Ungheresi 12, Chiaramonte Gulfi',spec:['Maiale ibleo in ogni taglio','Gelatina di maiale','Costine ripiene'],desc:`Dal 1896, la destinazione per il maiale nero ibleo "dalla testa alla coda" sui Monti Iblei. Vale la gita.`},
+ {id:'r54',lucrezia:true,name:'Tito Mare fresh & fried street food',town:'Siracusa',z:'siracusa',type:'street food',price:'€€',lat:37.0651,lng:15.2936,addr:'Via Emanuele De Benedictis 23, Ortigia, Siracusa',spec:['Frittura di pesce nel coppo','Pescato fritto al momento'],desc:`Street food di mare nel mercato di Ortigia: pesce fritto servito nel coppo, veloce e freschissimo.`},
+ {id:'r55',lucrezia:true,name:'Carnezzeria - fishfood',town:'Siracusa',z:'siracusa',type:'ristorante',price:'€€',lat:37.0645,lng:15.2934,addr:'Via Emanuele De Benedictis 29, Ortigia, Siracusa',spec:['Pesce freschissimo','Crudo di mare','Griglia'],desc:`La "macelleria del pesce" di Ortigia: scegli il pescato al banco e te lo cucinano, dal crudo alla griglia.`},
+ {id:'r56',lucrezia:true,name:'Cappuccio - Pesce Fresco Street Food',town:'Siracusa',z:'siracusa',type:'street food',price:'€',lat:37.0653,lng:15.2933,addr:'Via Emanuele Giaracà 8, Siracusa',spec:['Hamburger di pesce','Frittura di mare'],desc:`Pesce fresco in versione street food: hamburger di tonno o spada e fritti di mare, veloce e buono.`},
+ {id:'r57',lucrezia:true,name:'Chiodo - Ristorante Ortigia',town:'Siracusa',z:'siracusa',type:'ristorante',price:'€€',lat:37.06071,lng:15.29451,addr:'Via Roma 15, Ortigia, Siracusa',spec:['Cucina di mare','Piatti siciliani'],desc:`Trattoria di pesce nel cuore di Ortigia, cucina siciliana semplice e schietta.`},
+ {id:'r58',lucrezia:true,name:'Fratelli Burgio',town:'Siracusa',z:'siracusa',type:'enoteca',price:'€€',lat:37.06561,lng:15.29361,addr:'Piazza Cesare Battisti 4, Mercato di Ortigia, Siracusa',spec:['Taglieri di salumi e formaggi','Caponata','Vini siciliani'],desc:`Storica salumeria-gastronomia del mercato di Ortigia: taglieri, caponata e vini da gustare sul posto.`},
+ {id:'r59',lucrezia:true,name:'A Valata',town:'Pozzallo',z:'pozzallo',type:'ristorante',price:'€€€',lat:36.7240,lng:14.8436,addr:'Via Enrico Giunta, Pozzallo (RG)',spec:['Pesce fresco','Crudo di mare'],desc:`Pesce e crudo sul lungomare di Pozzallo, verso la punta sud della Sicilia.`},
+ {id:'r60',lucrezia:true,name:'Osteria Villadorata',town:'Noto',z:'noto',type:'ristorante',price:'€€€€',lat:36.89184,lng:15.0694,addr:'Via Rocco Pirri 19, Noto',spec:['Cucina siciliana di ricerca',"Prodotti dell'orto"],desc:`Cucina siciliana di ricerca con prodotti dell'orto, nel centro barocco di Noto.`},
+ {id:'r61',lucrezia:true,name:'Trattoria I Rizzari',town:'Brucoli',z:'siracusa',min:50,type:'trattoria',price:'€€€',lat:37.28379,lng:15.18823,addr:'Via Libertà 63, Brucoli (SR)',spec:['Pesce fresco','Cucina di mare'],desc:`Storica trattoria di mare nel borgo marinaro di Brucoli, a nord di Augusta. Più distante (verso Catania), ma nella lista di Lucrezia.`},
+ {id:'r62',near:true,name:'Cucina Tipica da Eva e Zio Pippo',town:'Noto (campagna)',min:6,type:'trattoria',price:'€€',lat:36.96807,lng:15.07632,addr:'Contrada Carrubbella, Noto',spec:['Cucina tipica netina','Piatti di campagna'],desc:`Cucina tipica di campagna a pochi minuti dalla Masseria, in contrada Carrubbella.`},
+ {id:'r63',near:true,name:'Villa Bruna',town:'San Corrado di Fuori',min:7,type:'ristorante',price:'€€',lat:36.93013,lng:15.06383,addr:'SS287 n.20, San Corrado di Fuori, Noto',spec:['Cucina siciliana','Pizza'],desc:`Sulla SS287 a San Corrado di Fuori, la stessa frazione della Masseria: cucina di paese semplice.`},
+ {id:'r64',near:true,name:'Villa Cultrera',town:'Noto (campagna)',min:7,type:'ristorante',price:'€€',lat:36.93564,lng:15.06129,addr:'SS287, Noto',spec:['Cucina siciliana','Eventi'],desc:`Ristorante sulla SS287, sulla strada tra la Masseria e Noto.`},
+ {id:'r65',near:true,name:'Ristorante Dodici Zappe',town:'Avola (campagna)',min:12,type:'ristorante',price:'€€',lat:36.92104,lng:15.1053,addr:'Contrada Seggio, Avola',spec:['Cucina di campagna','Prodotti locali'],desc:`Ristorante di campagna molto ben recensito (4,7), tra Noto e Avola.`},
+ {id:'r66',near:true,name:'Trattoria Cava Grande (Ra Zia Gina)',town:'Avola (Cava Grande)',min:10,type:'trattoria',price:'€€',lat:36.9675,lng:15.09384,addr:'Contrada Monzello, Avola',spec:['Trattoria di campagna','Pizza'],desc:`Trattoria-pizzeria rustica comoda per la gita a Cava Grande del Cassibile.`},
+ {id:'r67',near:true,name:'Alabianca - VEG Home Restaurant',town:'Noto (Pietà)',min:2,type:'ristorante',price:'€€',lat:36.95777,lng:15.03474,addr:'Contrada Pietà San Giovannello, Noto',spec:['Cucina vegetariana','Home restaurant'],desc:`Il più vicino in assoluto (meno di 1 km dalla Masseria): home restaurant vegetariano, solo su prenotazione.`},
+ {id:'r68',near:true,name:'Trattoria dei Quartieri',town:'Canicattini Bagni',min:13,type:'trattoria',price:'€€',lat:37.02828,lng:15.07047,addr:'Via Umberto 380, Canicattini Bagni (SR)',spec:['Cucina iblea','Carne e piatti tipici'],desc:`Trattoria di paese a Canicattini Bagni, sull'altopiano ibleo a nord di Noto.`}
+];
+
+/* ---------- PIATTI / PRODOTTI TIPICI ---------- */
+const DISHES = [
+ {id:'d1',name:'Granita con brioche col tuppo',cat:'Dolce',emoji:'🍧',photoQ:'Caffè Sicilia Noto',where:'Noto, Avola, Siracusa',desc:`La colazione siciliana per eccellenza: granita lavorata lentamente (mandorla di Avola, gelso, limone) e brioche col tuppo per inzupparla.`,tryAt:['Caffè Sicilia','Caffè Costanzo','Bar Finocchiaro 1858','Caffè Apollo']},
+ {id:'d2',name:'Cioccolato di Modica IGP',cat:'Prodotto',emoji:'🍫',photoQ:'Antica Dolceria Bonajuto Modica',where:'Modica',desc:`Primo cioccolato IGP al mondo: lavorato a freddo, senza concaggio né grassi aggiunti, con lo zucchero che resta in cristalli. Texture granulosa e aromi (cannella, vaniglia, peperoncino).`,tryAt:['Antica Dolceria Bonajuto','Sabadì','Caffè Adamo']},
+ {id:'d3',name:"'Mpanatigghi modicani",cat:'Dolce',emoji:'🥟',photoQ:'Antica Dolceria Bonajuto Modica',where:'Modica',desc:`Mezzelune di frolla con un ripieno sorprendente: carne di manzo, mandorle, cioccolato e spezie. La carne sparisce nel gusto. Eredità spagnola della Contea di Modica.`,tryAt:['Antica Dolceria Bonajuto']},
+ {id:'d4',name:'Scaccia ragusana',cat:'Street food',emoji:'🫓',photoQ:'I Banchi Ragusa',where:'Ragusa, Modica, Scicli',desc:`Sfoglia di pasta sottilissima ripiegata più volte su un ripieno: classica con pomodoro e caciocavallo, oppure ricotta e cipolla. Croccante fuori, morbida dentro.`,tryAt:['I Banchi','Cantunèra Ibla']},
+ {id:'d5',name:'Ravioli di ricotta al sugo di maiale',cat:'Primo',emoji:'🥟',photoQ:'Cucina e Vino Ragusa Ibla',where:'Ragusa, Altopiano Ibleo',desc:`Ravioli di ricotta (spesso zuccherata con cannella) con ragù lento di maiale: il contrasto dolce-salato è un unicum ragusano, piatto della domenica.`,tryAt:['Cucina e Vino','A Rusticana','Trattoria La Bettola','Osteria Mamma Rosa']},
+ {id:'d6',name:'Cavati ragusani',cat:'Primo',emoji:'🍝',photoQ:'Cucina e Vino Ragusa Ibla',where:'Provincia di Ragusa',desc:`Pasta fresca di semola scavata a mano, perfetta con il ragù di maiale. Sulla costa di Pachino prende il nome di "lolli".`,tryAt:['Cucina e Vino','A Rusticana','Trattoria La Rusticana']},
+ {id:'d7',name:'Coniglio alla stimpirata',cat:'Secondo',emoji:'🐰',photoQ:'Trattoria La Rusticana Modica',where:'Ragusa, Modica',desc:`Coniglio in agrodolce con olive, capperi, sedano, aceto e menta fresca a fine cottura. Si serve a temperatura ambiente, dopo riposo: eredità arabo-normanna.`,tryAt:['Trattoria La Rusticana','Locanda Don Serafino','Cucina e Vino']},
+ {id:'d8',name:'Pasta con i ricci di mare',cat:'Primo',emoji:'🦔',photoQ:'Ristorante Don Camillo Siracusa',where:'Siracusa, Avola, Marzamemi',desc:`Spaghettini mantecati a crudo con la polpa di riccio: solo iodio e dolcezza, niente panna. Stagione ottobre–aprile, in estate meglio evitarli.`,tryAt:['Ristorante Don Camillo','Trattoria La Pigna','Ci:Vulìa','La Conchiglietta']},
+ {id:'d9',name:'Tonno rosso di Marzamemi',cat:'Prodotto',emoji:'🐟',photoQ:'Ristorante Campisi Marzamemi',where:'Marzamemi, Portopalo',desc:`Dalla tonnara storica: ventresca, bottarga, mosciame, buzzonaglia. Crudo, scottato o sott'olio. Campagna di pesca primaverile.`,tryAt:['Taverna La Cialoma','Ristorante Campisi','Al Boccone']},
+ {id:'d10',name:'Gambero rosso',cat:'Secondo',emoji:'🦐',photoQ:'Al Gambero Rosso Portopalo',where:'Portopalo, Marzamemi',desc:`Polpa dolce e fondente, da gustare crudo su ghiaccio o appena scottato. Portopalo è il principale porto di sbarco della zona.`,tryAt:['Al Gambero Rosso','U Saracenu','Ci:Vulìa']},
+ {id:'d11',name:'Sarde a beccafico',cat:'Secondo',emoji:'🐟',photoQ:'Ristorante Dammuso Noto',where:'Siracusa, Noto',desc:`Sarde aperte e farcite con mollica, uvetta, pinoli e succo d'arancia, arrotolate con la coda all'insù. Versione orientale spesso con capperi.`,tryAt:['Ristorante Dammuso','Ristorante Don Camillo','Trattoria La Foglia','Al Boccone']},
+ {id:'d12',name:'Caponata',cat:'Antipasto',emoji:'🍆',photoQ:'Trattoria La Foglia Siracusa',where:'Tutta la zona',desc:`Melanzane fritte in agrodolce con sedano, olive e capperi. La versione siracusana aggiunge tonno; quella iblea invernale è più arcaica.`,tryAt:['Trattoria La Foglia','Trattoria Al Buco','Trattoria Giufà','Cucina e Vino']},
+ {id:'d13',name:'Maccu di fave',cat:'Primo',emoji:'🫘',photoQ:'Le Sorelle Bandiera Siracusa',where:'Siracusa, Modica, Ragusa',desc:`Crema densa di fave secche e finocchietto, finita con olio crudo. Uno dei piatti più antichi del Mediterraneo; sulla costa condisce i lolli.`,tryAt:['Le Sorelle Bandiera','Trattoria Giufà']},
+ {id:'d14',name:'Arancini ragusani',cat:'Street food',emoji:'🍙',photoQ:'Cantunèra Ibla Ragusa',where:'Ragusa, Siracusa',desc:`Riso allo zafferano con ragù, piselli, uovo sodo e caciocavallo ragusano; nella Sicilia orientale spesso a forma di cono "come l'Etna".`,tryAt:['Cantunèra Ibla','Bar Pasticceria Midolo','Rosticceria Palermitana da Andrea','I Banchi']},
+ {id:'d15',name:'Cassata siciliana',cat:'Dolce',emoji:'🍰',photoQ:'Caffè Sicilia Noto',where:'Tutta la zona',desc:`Pan di spagna, ricotta di pecora dolce con gocce di cioccolato, pasta reale verde, glassa e frutta candita. Tradizionalmente dolce di Pasqua.`,tryAt:['Caffè Sicilia','Antica Dolceria Bonajuto','Pasticceria Artale']},
+ {id:'d16',name:'Cannoli',cat:'Dolce',emoji:'🥐',photoQ:'Caffè Sicilia Noto',where:'Tutta la zona',desc:`Cialda fritta croccante riempita al momento con ricotta (qui spesso vaccina iblea, più delicata), gocce di cioccolato e, a oriente, pistacchio di Bronte.`,tryAt:['Caffè Sicilia','Caffè Costanzo','Pasticceria Artale']},
+ {id:'d17',name:'Biancomangiare di mandorla',cat:'Dolce',emoji:'🍮',photoQ:'Caffè Sicilia Noto',where:'Noto, Avola',desc:`Budino bianco di latte di mandorla con cannella: delicato, di radice medievale, radicato attorno a Noto e Avola per via delle mandorle.`,tryAt:['Caffè Sicilia']},
+ {id:'d18',name:'Gelo di melone',cat:'Dolce',emoji:'🍉',photoQ:'Pasticceria Artale Siracusa',where:'Estate',desc:`Budino estivo di anguria profumato al gelsomino, con gocce di cioccolato e pistacchio. Solo luglio-agosto, quando l'anguria è al massimo.`,tryAt:['Caffè Sicilia','Pasticceria Artale']},
+ {id:'d19',name:'Caciocavallo Ragusano DOP',cat:'Prodotto',emoji:'🧀',photoQ:'Caseificio Borderi Siracusa',where:'Provincia di Ragusa',desc:`Formaggio a pasta filata a forma di parallelepipedo, da latte crudo di vacca Modicana al pascolo ibleo. Dolce a 3 mesi, piccante oltre i 12.`,tryAt:['I Banchi','Caseificio Borderi']},
+ {id:'d20',name:'Mandorla di Avola (Pizzuta)',cat:'Prodotto',emoji:'🌰',photoQ:'Bar Finocchiaro 1858 Avola',where:'Avola, Noto',desc:`Tra le mandorle più pregiate al mondo: piatta e appuntita, base di granita, latte di mandorla, torrone e confetti. Presidio Slow Food "Mandorla di Noto".`,tryAt:['Bar Finocchiaro 1858','Caffè Sicilia']},
+ {id:'d21',name:'Pomodoro di Pachino IGP',cat:'Prodotto',emoji:'🍅',photoQ:'Marzamemi',where:'Pachino, Portopalo, Noto',desc:`Ciliegino, datterino, costoluto e marinda: l'acqua salmastra e il sole concentrano zuccheri e profumo. È ovunque nei piatti di pesce della zona.`,tryAt:[]},
+ {id:'d22',name:'Salsiccia ragusana',cat:'Prodotto',emoji:'🌭',photoQ:'Ristorante Majore Chiaramonte Gulfi',where:'Provincia di Ragusa',desc:`Insaccato di maiale a grana grossa profumato ai semi di finocchietto selvatico: è il finocchietto a distinguerla. Fresca per la griglia o stagionata.`,tryAt:['Ristorante Majore','Taverna Nicastro']},
+ {id:'d23',name:'Olio Monti Iblei DOP',cat:'Prodotto',emoji:'🫒',photoQ:'Ragusa Ibla',where:'Monti Iblei',desc:`Extravergine da cultivar Tonda Iblea: fruttato di oliva verde con sentori di pomodoro e mandorla. L'olio di riferimento di tutta la cucina locale.`,tryAt:[]},
+ {id:'d24',name:'Pane cunzato',cat:'Street food',emoji:'🥪',photoQ:'Liccamùciula Marzamemi',where:'Tutta la zona',desc:`Pane di semola "condito" caldo con olio, pomodoro, origano, acciughe o tonno, primo sale; versione iblea con capuliato e Ragusano.`,tryAt:['Liccamùciula']},
+ {id:'d25',name:"Nero d'Avola",cat:'Vino',emoji:'🍷',photoQ:'Marzamemi',where:'Avola, Noto, Pachino',desc:`Il grande rosso autoctono: rubino intenso, amarena e prugna, tannini setosi. Le espressioni più eleganti nascono nel triangolo Avola-Noto-Pachino (DOC Eloro).`,tryAt:[]},
+ {id:'d26',name:'Moscato di Noto / Passito',cat:'Vino',emoji:'🍇',photoQ:'Noto',where:'Noto, Avola, Pachino',desc:`Vino dolce da Moscato bianco: il Passito di Noto profuma di miele, fichi e fiori d'arancio. Abbinamento naturale coi dolci di mandorla.`,tryAt:[]},
+ {id:'d27',name:'Cerasuolo di Vittoria DOCG',cat:'Vino',emoji:'🍷',photoQ:'Ragusa',where:'Vittoria, Comiso, Acate',desc:`L'unica DOCG di Sicilia: blend di Nero d'Avola e Frappato. Il Frappato porta ciliegia e violetta e rende il rosso elegante e bevibile.`,tryAt:[]},
+ {id:'d28',name:'Impanata di agnello (pasquale)',cat:'Street food',emoji:'🥧',photoQ:'I Banchi Ragusa',where:'Ragusa, Modica, Scicli',desc:`Fagotto di pasta di pane ripieno di agnello crudo con aglio e rosmarino, che cuoce dentro l'involucro. Specialità della settimana di Pasqua.`,tryAt:['I Banchi']}
+];
+
+/* Foto reali dei PIATTI (non dei locali) — da Wikimedia Commons. d7 senza foto: resta l'icona. */
+const DISH_IMG = {
+ d1:"https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Tris_di_granite.JPG/960px-Tris_di_granite.JPG",
+ d2:"https://upload.wikimedia.org/wikipedia/commons/8/89/Cioccolato_modicano.jpg",
+ d3:"https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/%27Mpanatigghi.JPG/960px-%27Mpanatigghi.JPG",
+ d4:"https://upload.wikimedia.org/wikipedia/commons/a/a9/Scacce_e_pane.jpg",
+ d5:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Ravioli_Capresi.jpg/960px-Ravioli_Capresi.jpg",
+ d6:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Noto%2C_Cavatelli_pomodoro_ricotta_salata_%28cropped%29.jpg/960px-Noto%2C_Cavatelli_pomodoro_ricotta_salata_%28cropped%29.jpg",
+ d7:"https://api.openverse.org/v1/images/9cc670e7-0805-40af-a79c-46269355b03f/thumb/",
+ d8:"https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Spaghetti_ricci_di_mare.jpg/960px-Spaghetti_ricci_di_mare.jpg",
+ d9:"https://api.openverse.org/v1/images/8a1f57e6-83ca-47fa-9e09-479d8dedb919/thumb/",
+ d10:"https://api.openverse.org/v1/images/37b2acc3-809d-4395-96cd-a07933d36ad6/thumb/",
+ d11:"https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Sarde_a_beccafico.jpg/960px-Sarde_a_beccafico.jpg",
+ d12:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Caponata.jpg/960px-Caponata.jpg",
+ d13:"https://upload.wikimedia.org/wikipedia/commons/3/36/Pasta_col_macco_di_fave.jpg",
+ d14:"https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Arancini_002.jpg/960px-Arancini_002.jpg",
+ d15:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Cassatasiciliana.jpg/960px-Cassatasiciliana.jpg",
+ d16:"https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Cannoli_siciliani_al_Caff%C3%A8_Impero%2C_ad_Alcamo.jpg/960px-Cannoli_siciliani_al_Caff%C3%A8_Impero%2C_ad_Alcamo.jpg",
+ d17:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Blanc-manger_on_glass_platter.jpg/960px-Blanc-manger_on_glass_platter.jpg",
+ d18:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Gelo_di_mellone.jpg/960px-Gelo_di_mellone.jpg",
+ d19:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Ragusano_Cheese.jpg/960px-Ragusano_Cheese.jpg",
+ d20:"https://upload.wikimedia.org/wikipedia/commons/0/04/Mandorla_di_Avola.jpg",
+ d21:"https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Cherry_Tomato_on_Vine.JPG/960px-Cherry_Tomato_on_Vine.JPG",
+ d22:"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Salsiccia_Italian_pork_sausage.jpg/960px-Salsiccia_Italian_pork_sausage.jpg",
+ d23:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Olive_Oil_%28Unsplash%29.jpg/960px-Olive_Oil_%28Unsplash%29.jpg",
+ d24:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Pani_cunzatu_%28Scopello%29.jpg/960px-Pani_cunzatu_%28Scopello%29.jpg",
+ d25:"https://upload.wikimedia.org/wikipedia/commons/c/c0/Red_Wine_Glass.jpg",
+ d26:"https://upload.wikimedia.org/wikipedia/commons/7/71/White_Wine_Glas.jpg",
+ d27:"https://upload.wikimedia.org/wikipedia/commons/a/a3/Cerasuolo_di_Vittoria.jpg",
+ d28:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/%27Mpanate.jpg/960px-%27Mpanate.jpg"
+};
+
+/* ---------- DA VEDERE ---------- */
+const SIGHTS = [
+ {id:'s1',name:'Cattedrale di San Nicolò',town:'Noto',z:'noto',type:'chiesa',lat:36.89137,lng:15.07081,ticket:'gratis',desc:`Il simbolo del tardo barocco siciliano (UNESCO): scalinata, due campanili e cupola ricostruita dopo il crollo del 1996. Domina il Corso.`},
+ {id:'s2',name:'Palazzo Nicolaci di Villadorata',town:'Noto',z:'noto',type:'palazzo',lat:36.8909,lng:15.0700,ticket:'~5€',desc:`Sei balconi sorretti da mensole con mostri, sirene e cavalli: i più scenografici del barocco. Sede a maggio dell'Infiorata di Noto.`},
+ {id:'s3',name:'Chiesa di San Carlo al Corso (campanile)',town:'Noto',z:'noto',type:'chiesa',lat:36.8910,lng:15.0694,ticket:'~3€',desc:`Si sale sul campanile per la vista più bella sulla spina barocca di Noto, con la Cattedrale e il Corso a colpo d'occhio.`},
+ {id:'s4',name:'Palazzo Ducezio',town:'Noto',z:'noto',type:'palazzo',lat:36.89076,lng:15.07059,ticket:'~3€',desc:`Il municipio neoclassico con loggiato: dentro la splendida Sala degli Specchi affrescata, tra le meglio conservate del barocco.`},
+ {id:'s5',name:'Chiesa di Santa Chiara',town:'Noto',z:'noto',type:'chiesa',lat:36.8913,lng:15.0696,ticket:'gratis/offerta',desc:`Rara pianta ellittica di Rosario Gagliardi; dalla terrazza una bella vista sul Corso e sulla Cattedrale.`},
+ {id:'s6',name:'Teatro Tina di Lorenzo',town:'Noto',z:'noto',type:'monumento',lat:36.891603,lng:15.067881,ticket:'gratis (esterno)',desc:`Teatro ottocentesco a ferro di cavallo, ispirato al San Carlo di Napoli, restaurato e ancora in attività.`},
+ {id:'s7',name:'Porta Reale',town:'Noto',z:'noto',type:'monumento',lat:36.8901,lng:15.0739,ticket:'gratis',desc:`L'arco trionfale del 1838 da cui parte la passeggiata sul Corso verso la Cattedrale: l'ingresso "giusto" alla città.`},
+ {id:'s8',name:'Parco Archeologico di Noto Antica',town:'Noto',z:'noto',type:'sito archeologico',lat:36.94573,lng:15.02365,ticket:'gratis',desc:`Le rovine della Noto distrutta nel 1693, sul Monte Alveria: mura, chiese rupestri e bosco mediterraneo, in silenzio quasi totale.`},
+ {id:'s9',name:'Villa Romana del Tellaro',town:'Noto',z:'tellaro',type:'sito archeologico',lat:36.83528,lng:15.07861,ticket:'~6€',desc:`Villa tardoromana con mosaici policromi straordinari (scene di caccia, Achille), paragonabili a Piazza Armerina ma senza folla.`},
+ {id:'s10',name:'Area Archeologica di Eloro',town:'Noto',z:'vendicari',type:'sito archeologico',lat:36.8422,lng:15.1094,ticket:'gratis',desc:`Colonia greca sulla foce del Tellaro, accanto alla riserva di Vendicari: un tempio col mare sullo sfondo, quasi senza turisti.`},
+ {id:'s11',name:'Riserva di Cavagrande del Cassibile',town:'Avola',z:'cavagrande',type:'natura',lat:36.97302,lng:15.07689,ticket:'gratis (parcheggio a pagamento)',desc:`Un canyon profondo fino a 500 m con laghetti smeraldo sul fondo: il paesaggio più drammatico della zona. Discesa impegnativa.`},
+ {id:'s12',name:'Parco Archeologico della Neapolis',town:'Siracusa',z:'siracusa',type:'sito archeologico',lat:37.0759,lng:15.2752,ticket:'~10€',desc:`Teatro Greco (tra i più grandi dell'antichità), Orecchio di Dionisio e Anfiteatro romano. In estate ci vanno in scena le tragedie classiche.`},
+ {id:'s13',name:'Museo Archeologico Paolo Orsi',town:'Siracusa',z:'siracusa',type:'museo',lat:37.0755,lng:15.2860,ticket:'~10€',desc:`Uno dei musei archeologici più importanti d'Europa: dai Siculi alla colonizzazione greca, indispensabile per capire la zona.`},
+ {id:'s14',name:'Duomo di Siracusa (Ortigia)',town:'Siracusa',z:'siracusa',type:'chiesa',lat:37.05962,lng:15.29343,ticket:'gratis/offerta',desc:`Una cattedrale costruita dentro un tempio greco di Atena: le colonne doriche del V sec. a.C. sono ancora nelle navate. Unica al mondo.`},
+ {id:'s15',name:'Fonte Aretusa',town:'Siracusa',z:'siracusa',type:'monumento',lat:37.0573,lng:15.2929,ticket:'gratis',desc:`Sorgente d'acqua dolce con papiri a pochi metri dal mare, cantata da Pindaro e Virgilio. Da vedere al tramonto sul porto grande.`},
+ {id:'s16',name:'Tempio di Apollo',town:'Siracusa',z:'siracusa',type:'sito archeologico',lat:37.0639,lng:15.2931,ticket:'gratis (esterno)',desc:`Il tempio dorico più antico della Sicilia (VI sec. a.C.), all'ingresso di Ortigia tra i palazzi: 2600 anni in pochi metri.`},
+ {id:'s17',name:'Castello Maniace',town:'Siracusa',z:'siracusa',type:'monumento',lat:37.0535,lng:15.2952,ticket:'~6€',desc:`Castello svevo di Federico II sulla punta di Ortigia, col mare su tre lati: la vista più scenografica dell'isola al tramonto.`},
+ {id:'s18',name:'Catacombe di San Giovanni',town:'Siracusa',z:'siracusa',type:'sito archeologico',lat:37.0767,lng:15.2849,ticket:'~8€',desc:`La seconda catacomba cristiana dopo Roma: un dedalo di gallerie e migliaia di nicchie scavate nel tufo. Esperienza intensa.`},
+ {id:'s19',name:'Necropoli di Pantalica',town:'Sortino / Ferla',z:'pantalica',type:'sito archeologico',lat:37.1417,lng:15.0283,ticket:'gratis',desc:`Oltre 5.000 tombe rupestri (XIII–VII sec. a.C.) lungo canyon selvaggi tra due fiumi. Patrimonio UNESCO, escursione e natura.`},
+ {id:'s20',name:'Area Archeologica di Akrai',town:'Palazzolo Acreide',z:'palazzolo',type:'sito archeologico',lat:37.05756,lng:14.89467,ticket:'~4€',desc:`Sub-colonia di Siracusa col suo piccolo teatro greco perfettamente leggibile, sull'altopiano ibleo, quasi senza turisti.`},
+ {id:'s21',name:'Duomo di San Giorgio',town:'Modica',z:'modica',type:'chiesa',lat:36.86409,lng:14.76167,ticket:'gratis',desc:`Capolavoro di Gagliardi su una scalinata monumentale: una delle facciate barocche più fotografate di Sicilia.`},
+ {id:'s22',name:'Chiesa di San Pietro',town:'Modica',z:'modica',type:'chiesa',lat:36.8607,lng:14.7607,ticket:'gratis',desc:`La cattedrale della città bassa, con le dodici statue degli Apostoli sulla scalinata: il contrappunto a San Giorgio.`},
+ {id:'s23',name:'Duomo di San Giorgio (Ragusa Ibla)',town:'Ragusa Ibla',z:'ragusa',type:'chiesa',lat:36.92670,lng:14.74190,ticket:'gratis',desc:`La facciata a torre si specchia nella piazza acciottolata di Ibla, uno dei salotti urbani più belli d'Italia. Si vede nei titoli di Montalbano.`},
+ {id:'s24',name:'Giardino Ibleo',town:'Ragusa Ibla',z:'ragusa',type:'natura',lat:36.9260,lng:14.7480,ticket:'gratis',desc:`Giardino ottocentesco all'estremità di Ibla, con tre chiese e il belvedere sul canyon dell'Irminio.`},
+ {id:'s25',name:'Santa Maria delle Scale',town:'Ragusa',z:'ragusa',type:'chiesa',lat:36.9252,lng:14.7352,ticket:'gratis',desc:`Sulla scalinata di 240 gradini che collega Ragusa alta e Ibla: il punto migliore per capire la città su due livelli.`},
+ {id:'s26',name:'Palazzo Beneventano',town:'Scicli',z:'scicli',type:'palazzo',lat:36.79097,lng:14.70839,ticket:'gratis (esterno)',desc:`Definito "il più bel palazzo barocco di Sicilia": mascheroni grotteschi sull'angolo, tra l'impressionante e il buffo.`},
+ {id:'s27',name:'Via Francesco Mormino Penna',town:'Scicli',z:'scicli',type:'borgo',lat:36.7920,lng:14.7060,ticket:'gratis',desc:`L'asse barocco di Scicli (e set di Montalbano): qualità altissima e quasi nessuna folla. La città barocca più autentica.`},
+ {id:'s28',name:"Cava d'Ispica (Parco della Forza)",town:'Ispica / Modica',z:'ispica',type:'sito archeologico',lat:36.7899,lng:14.9129,ticket:'~4€',desc:`Canyon di 13 km con necropoli, catacombe e abitazioni rupestri stratificate dal XIV sec. a.C. al Medioevo.`},
+ {id:'s29',name:'Casa del Commissario Montalbano',town:'Punta Secca',z:'puntasecca',type:'borgo',lat:36.78907,lng:14.49213,ticket:'gratis (esterno)',desc:`La celebre casa sul lungomare di Punta Secca, "Marinella" della fiction, con il faro a pochi passi. Oggi è un B&B.`}
+];
+
+/* ---------- SPIAGGE ---------- */
+const BEACHES = [
+ {id:'p1',name:'Calamosche',town:'Riserva di Vendicari, Noto',z:'vendicari',type:'riserva',lat:36.8244,lng:15.1057,services:'Spiaggia libera in riserva, ~1,2 km a piedi dal parcheggio, nessun servizio',desc:`Baia di 200 m tra due promontori, acqua sempre calma e cristallina, fondali da snorkeling. Eletta tra le più belle d'Italia.`},
+ {id:'p2',name:'Spiaggia della Tonnara di Vendicari',town:'Riserva di Vendicari, Noto',z:'vendicari',type:'riserva',lat:36.8052,lng:15.1038,services:'Libera in riserva (ingresso a pagamento), parcheggio sulla SP19',desc:`La più iconica della riserva, con la tonnara settecentesca e la torre sveva alle spalle e un isolotto davanti. Fondale basso, ottima per bambini.`},
+ {id:'p3',name:'Spiaggia di Eloro',town:'Riserva di Vendicari, Noto',z:'vendicari',type:'riserva',lat:36.8411,lng:15.1040,services:'Libera in riserva, parcheggio ingresso nord (SP19), ~300 m a piedi',desc:`Grande distesa sabbiosa con dune accanto alle rovine greche di Eloro: l'ingresso nord della riserva.`},
+ {id:'p4',name:'Spiaggia di Marianelli',town:'Riserva di Vendicari, Noto',z:'vendicari',type:'riserva',lat:36.8323,lng:15.1063,services:'Libera in riserva, ~10 min a piedi, nessun servizio (tratto naturista)',desc:`La più selvaggia e isolata della riserva, tra dune e tratti rocciosi: silenzio e acqua verde-azzurra.`},
+ {id:'p5',name:'Spiaggia di San Lorenzo',town:'Vendicari / Pachino',z:'pachino',type:'sabbia',lat:36.7608,lng:15.0804,services:'Mix libera + lidi, parcheggio stagionale, accesso libero',desc:`Continuazione naturale della riserva verso Pachino: sabbia, acqua bassa e calma, più comoda da raggiungere.`},
+ {id:'p6',name:'Lido di Noto',town:'Noto',z:'marina',type:'sabbia',lat:36.85811,lng:15.11637,services:'Lidi attrezzati + tratti liberi, ampio parcheggio',desc:`La spiaggia di Noto, lunga e attrezzata (Cinque Vele Legambiente): sabbia chiara e mare che degrada dolcemente. Comoda dalla città.`},
+ {id:'p7',name:'Calabernardo',town:'Noto',z:'calabernardo',type:'misto',lat:36.8675,lng:15.1365,services:'Per lo più libera e naturale, parcheggio nel borgo',desc:`Borgo marinaro con scogli e piccole insenature sabbiose: acque limpidissime e snorkeling, atmosfera tranquilla.`},
+ {id:'p8',name:'Spiaggia della Spinazza',town:'Marzamemi',z:'marzamemi',type:'sabbia',lat:36.7460,lng:15.1111,services:'Lidi + tratti liberi, parcheggio, borgo a pochi minuti',desc:`Sabbia dorata a nord del borgo di Marzamemi, fondale dolce: comoda per unire mare e aperitivo nel borgo.`},
+ {id:'p9',name:'Spiaggia di Marzamemi',town:'Marzamemi',z:'marzamemi',type:'sabbia',lat:36.7390,lng:15.1170,services:'Libera e attrezzata, bar e ristoranti nel borgo, parcheggio',desc:`A fianco del borgo dei pescatori, con la tonnara come fondale e mare turchese. Molto frequentata in alta stagione.`},
+ {id:'p10',name:'Spiaggia di Carratois',town:'Portopalo di Capo Passero',z:'portopalo',type:'sabbia',lat:36.6570,lng:15.0740,services:'Tratti attrezzati e liberi, "Punta Rio" piscina naturale per bimbi',desc:`Lunga spiaggia dorata verso l'Isola delle Correnti, fondale bassissimo, zona popolare per il windsurf.`},
+ {id:'p11',name:'Isola delle Correnti',town:'Portopalo di Capo Passero',z:'portopalo',type:'sabbia',lat:36.64543,lng:15.07750,services:'Libera, parcheggio, ultimo tratto sterrato, nessun servizio sull’isola',desc:`Il punto più a sud della Sicilia, dove Ionio e Mediterraneo si incontrano: isolotto raggiungibile a piedi, paesaggio selvaggio.`},
+ {id:'p12',name:'Spiaggia del Gelsomineto',town:'Avola',z:'avola',type:'sabbia',lat:36.9468,lng:15.1875,services:'Parcheggio a pagamento, bar e docce, accesso gratuito',desc:`Baia di sabbia bianca tra pareti calcaree, con pineta e gelsomini selvatici: acqua quasi sempre calma.`},
+ {id:'p13',name:'Spiaggia della Gallina',town:'Avola',z:'avola',type:'misto',lat:36.9367,lng:15.1714,services:'Zona nord con bar e parcheggio, zona sud naturale, gratis',desc:`Nella riserva della foce del Cassibile, tra archi naturali e grotte calcaree: sabbia dorata e acqua turchese.`},
+ {id:'p14',name:'Lido di Avola',town:'Avola',z:'avola',type:'sabbia',lat:36.9176,lng:15.1559,services:'Lidi attrezzati + tratti liberi, parcheggio',desc:`Lungo arenile sul lungomare di Avola, fondale dolce: spiaggia comoda e adatta alle famiglie.`},
+ {id:'p15',name:'Fontane Bianche',town:'Siracusa',z:'fontanebianche',type:'sabbia',lat:36.9635,lng:15.2083,services:'Tanti lidi attrezzati + tratti liberi, parcheggio nelle vie',desc:`Sabbia bianca finissima e mare fresco grazie alle sorgenti dal fondale: fondali bassi, ideale per famiglie.`},
+ {id:'p16',name:"Spiaggia dell'Arenella",town:'Siracusa',z:'arenella',type:'misto',lat:36.9965,lng:15.2640,services:'2 stabilimenti, parcheggio, bus da Siracusa',desc:`Baia chiusa vicino all'Area Marina del Plemmirio, acqua turchese e cristallina, a ~8 km da Ortigia.`},
+ {id:'p17',name:'Punta Secca',town:'Santa Croce Camerina',z:'puntasecca',type:'sabbia',lat:36.7875,lng:14.4941,services:'In parte libera, qualche lido, docce, parcheggio',desc:`Il borgo di "Marinella" di Montalbano: spiaggia tranquilla di sabbia fine, faro e casa del commissario sul lungomare.`},
+ {id:'p18',name:'Marina di Ragusa',town:'Marina di Ragusa',z:'marinaragusa',type:'sabbia',lat:36.7827,lng:14.5545,services:'Molti lidi, porto turistico, parcheggi, Bandiera Blu',desc:`La località balneare più attrezzata del ragusano, lungo il Lungomare Andrea Doria: sabbia dorata e mare pulito.`},
+ {id:'p19',name:'Cava d’Aliga',town:'Scicli',z:'scicli',type:'misto',lat:36.7278,lng:14.6858,services:'Chalet con noleggio, libera, due parcheggi gratuiti',desc:`Baia tra due scogliere con la Grotta dei Contrabbandieri: sabbia, fondale basso e belle vedute al tramonto.`},
+ {id:'p20',name:'Sampieri',town:'Scicli',z:'scicli',type:'sabbia',lat:36.7209,lng:14.7383,services:'Libera, camping, bar e noleggi, parcheggi',desc:`Due km di sabbia con pineta e, in fondo, lo scheletro della Fornace Penna ("la Mannara" di Montalbano).`},
+ {id:'p21',name:'Marina di Modica',town:'Modica',z:'modica',type:'sabbia',lat:36.7116,lng:14.7731,services:'Lidi + ampia parte libera, parcheggi gratuiti, Bandiera Blu',desc:`Sabbia finissima "africana" con dune, mare turchese e fondali bassi: buona anche per surf e windsurf.`}
+];
+</script>
+
+<!-- ============ APP LOGIC ============ -->
+<script>
+(function(){
+  "use strict";
+  const KEY = (typeof GOOGLE_MAPS_API_KEY==='string') ? GOOGLE_MAPS_API_KEY.trim() : '';
+  const HAS_KEY = KEY && KEY !== 'INCOLLA_QUI_LA_TUA_CHIAVE' && KEY.length > 20;
+  const enc = encodeURIComponent;
+
+  // fix one accidental placeholder coord for Don Camillo
+  RESTAURANTS.forEach(r=>{ if(r._lat){r.lat=r._lat;r.lng=r._lng;} });
+
+  const GROUP_COLOR = {food:'#c0563b', see:'#7a4ea0', beach:'#1b8a9a'};
+  const GROUP_GLYPH = {food:'🍴', see:'🏛️', beach:'🏖️'};
+  const TAB_OF_GROUP = {food:'ristoranti', see:'vedere', beach:'spiagge'};
+
+  function driveMin(z){ return ZONE[z] || null; }
+  function dirUrl(place){
+    const dest = place.addr ? (place.name+', '+place.addr) : (place.name+', '+(place.town||''));
+    return 'https://www.google.com/maps/dir/?api=1&origin='+enc(MASSERIA.query)+'&destination='+enc(dest);
+  }
+  function searchUrl(place){
+    return 'https://www.google.com/maps/search/?api=1&query='+enc(place.name+' '+(place.town||''));
+  }
+  function starStr(r){ if(!r&&r!==0) return ''; const full=Math.round(r); return '★'.repeat(full)+'☆'.repeat(Math.max(0,5-full)); }
+
+  /* ---------- CARD HTML ---------- */
+  function priceBadge(p){ return p? '<span class="badge">'+p+'</span>':''; }
+  function specHtml(arr){ return arr&&arr.length? '<div class="spec">'+arr.map(s=>'<span>'+esc(s)+'</span>').join('')+'</div>':''; }
+  function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+  /* Immagine "piatto" rappresentativa per un locale (solo immagini affidabili Wikimedia). */
+  const DISH_KW = [
+    ['granit','d1'],['cannol','d16'],['cioccolato','d2'],['cassat','d15'],['gelat','d1'],
+    ['scacc','d4'],['arancin','d14'],['mpanatigghi','d3'],
+    ['cavat','d6'],['ravioli','d5'],['coniglio','d5'],['maiale','d5'],['ragù','d5'],['ragu','d5'],
+    ['sarde','d11'],['beccafico','d11'],['caponata','d12'],
+    ['ricci','d8'],['gambero','d8'],['tonno','d8'],['spada','d8'],['crudo','d8'],['frittura','d8'],
+    ['paranza','d8'],['pescato','d8'],['vongole','d8'],['cozze','d8'],['pesce','d8'],['bottarga','d8'],
+    ['pane cunzato','d24'],['nero d','d25']
+  ];
+  function restaurantDishImg(r){
+    const hay = ((r.spec||[]).join(' ')+' '+(r.desc||'')).toLowerCase();
+    for(const [kw,id] of DISH_KW){ if(hay.includes(kw) && DISH_IMG[id]) return DISH_IMG[id]; }
+    if(['pasticceria','gelateria','bar'].includes(r.type)) return DISH_IMG.d1;
+    if(r.type==='enoteca') return DISH_IMG.d25;
+    if(r.type==='street food') return DISH_IMG.d14;
+    const coast=['marina','avola','marzamemi','pachino','portopalo','siracusa','fontanebianche','arenella','calabernardo','puntasecca','marinaragusa','pozzallo'];
+    return coast.includes(r.z) ? DISH_IMG.d8 : DISH_IMG.d5;
+  }
+
+  function placeCard(place, group){
+    const min = (place.min!=null) ? place.min : driveMin(place.z);
+    const distBadge = min!=null ? '<span class="badge dist">🚗 ~'+min+' min</span>' : '';
+    const star = place.star ? '<span class="badge star">★ Michelin</span>' : '';
+    const typeBadge = place.type ? '<span class="badge type">'+esc(cap(place.type))+'</span>' : '';
+    const lucBadge = place.lucrezia ? '<span class="badge luc">Lucrezia</span>' : '';
+    const nearBadge = place.near ? '<span class="badge near">🏡 Vicino alla base</span>' : '';
+    const badges = `<div class="badges">${lucBadge}${nearBadge}${typeBadge}${priceBadge(place.price)}${star}</div>${distBadge}`;
+    const isFood = group==='food';
+    const imgArea = isFood
+      ? `<div class="imgwrap strip" data-img>
+        <div class="ph">${GROUP_GLYPH[group]}</div>
+        ${badges}
+      </div>`
+      : `<div class="imgwrap" data-img>
+        <div class="ph">${GROUP_GLYPH[group]}</div>
+        ${badges}
+      </div>`;
+    return `<article class="card" id="card-${place.id}" data-id="${place.id}" data-group="${group}"
+        data-name="${esc((place.name+' '+(place.town||'')+' '+((place.spec||[]).join(' '))+(place.lucrezia?' lucrezia consigliato da lucrezia':'')+(place.near?' vicino base masseria':'')).toLowerCase())}"
+        data-type="${esc(place.type||'')}">
+      ${imgArea}
+      <div class="body">
+        <div>
+          <h3>${esc(place.name)}</h3>
+          <div class="town">📍 ${esc(place.town||'')}</div>
+        </div>
+        <div class="rating" data-rating><span class="loading">${HAS_KEY?'Carico valutazione…':''}</span></div>
+        <p class="desc">${esc(place.desc||'')}</p>
+        ${specHtml(place.spec)}
+        ${ place.ticket? '<div class="meta">🎟️ Ingresso: '+esc(place.ticket)+'</div>':'' }
+        ${ place.services? '<div class="meta">🏖️ '+esc(place.services)+'</div>':'' }
+        <div class="meta" data-phone></div>
+        <div data-hours></div>
+        <div class="actions">
+          <a class="btn dir" href="${dirUrl(place)}" target="_blank" rel="noopener">🧭 Indicazioni</a>
+          <a class="btn gm" data-gm href="${searchUrl(place)}" target="_blank" rel="noopener">📍 Google Maps</a>
+        </div>
+        <div class="reviews" data-reviews></div>
+      </div>
+    </article>`;
+  }
+  function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+
+  function dishCard(d){
+    const eat = (d.tryAt||[]).map(name=>{
+      const r = RESTAURANTS.find(x=> name.includes(x.name) || x.name.includes(name));
+      if(r) return `<a class="tag-eat" href="#" data-goto="${r.id}">${esc(r.name)} →</a>`;
+      return `<span class="tag-eat txt">${esc(name)}</span>`;
+    }).join(' ');
+    return `<article class="card" id="card-${d.id}" data-id="${d.id}"
+        data-name="${esc((d.name+' '+d.cat+' '+d.where).toLowerCase())}" data-type="${esc(d.cat)}">
+      <div class="imgwrap" data-img>
+        ${ DISH_IMG[d.id] ? `<img loading="lazy" alt="${esc(d.name)}" src="${DISH_IMG[d.id]}">` : `<div class="ph">${d.emoji||'🍽️'}</div>` }
+        <div class="badges"><span class="badge type">${esc(d.cat)}</span></div>
+      </div>
+      <div class="body">
+        <div><h3>${esc(d.name)}</h3><div class="town">📍 ${esc(d.where)}</div></div>
+        <p class="desc">${esc(d.desc)}</p>
+        ${ eat? '<div class="where"><b>Dove provarlo:</b><br>'+eat+'</div>' : '<div class="where"><b>Dove provarlo:</b> nei mercati e nelle aziende del territorio</div>'}
+      </div>
+    </article>`;
+  }
+
+  /* ---------- RENDER GRIDS ---------- */
+  function render(){
+    document.getElementById('grid-ristoranti').innerHTML = RESTAURANTS.map(r=>placeCard(r,'food')).join('');
+    document.getElementById('grid-vedere').innerHTML = SIGHTS.map(s=>placeCard(s,'see')).join('');
+    document.getElementById('grid-spiagge').innerHTML = BEACHES.map(b=>placeCard(b,'beach')).join('');
+    document.getElementById('grid-piatti').innerHTML = DISHES.map(dishCard).join('');
+    buildFilters('ristoranti', RESTAURANTS.map(r=>r.type));
+    buildFilters('vedere', SIGHTS.map(s=>s.type));
+    buildFilters('spiagge', BEACHES.map(b=>b.type));
+    buildFilters('piatti', DISHES.map(d=>d.cat));
+    updateCount('ristoranti'); updateCount('vedere'); updateCount('spiagge'); updateCount('piatti');
+  }
+
+  function buildFilters(key, types){
+    const uniq = [...new Set(types)].sort();
+    const box = document.getElementById('filter-'+key);
+    box.innerHTML = '<span class="chip active" data-f="*">Tutti</span>' +
+      uniq.map(t=>`<span class="chip" data-f="${esc(t)}">${esc(cap(t))}</span>`).join('');
+    box.addEventListener('click', e=>{
+      const c = e.target.closest('.chip'); if(!c) return;
+      box.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
+      c.classList.add('active');
+      applyFilter(key);
+    });
+  }
+
+  function applyFilter(key){
+    const box = document.getElementById('filter-'+key);
+    const active = box.querySelector('.chip.active');
+    const f = active? active.dataset.f : '*';
+    const q = (document.getElementById('search-'+key).value||'').toLowerCase().trim();
+    const grid = document.getElementById('grid-'+key);
+    grid.querySelectorAll('.card').forEach(card=>{
+      const okType = (f==='*') || card.dataset.type===f;
+      const okText = !q || card.dataset.name.includes(q);
+      card.style.display = (okType && okText)? '' : 'none';
+    });
+    updateCount(key);
+  }
+  function updateCount(key){
+    const grid = document.getElementById('grid-'+key);
+    const total = grid.querySelectorAll('.card').length;
+    const vis = [...grid.querySelectorAll('.card')].filter(c=>c.style.display!=='none').length;
+    const labels={ristoranti:'locali',vedere:'luoghi',spiagge:'spiagge',piatti:'piatti'};
+    document.getElementById('count-'+key).textContent = vis+' '+(labels[key]||'')+(vis!==total? ' (su '+total+')':'');
+  }
+
+  /* ---------- TABS ---------- */
+  function setupTabs(){
+    const bar = document.getElementById('tabbar');
+    bar.addEventListener('click', e=>{
+      const t = e.target.closest('.tab'); if(!t) return;
+      activateTab(t.dataset.tab);
+    });
+  }
+  function activateTab(name){
+    document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active', p.id==='panel-'+name));
+    if(name==='mappa' && map){ setTimeout(()=>{ google.maps.event.trigger(map,'resize'); }, 60); }
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  function goToCard(id){
+    let group='food', tab='ristoranti';
+    if(id[0]==='s'){group='see';tab='vedere';}
+    else if(id[0]==='p'){group='beach';tab='spiagge';}
+    else if(id[0]==='d'){group='dish';tab='piatti';}
+    activateTab(tab);
+    setTimeout(()=>{
+      const el = document.getElementById('card-'+id);
+      if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
+    }, 120);
+  }
+  // expose for inline map button / dish links
+  window.__goToCard = goToCard;
+
+  /* ---------- SEARCH ---------- */
+  function setupSearch(){
+    ['ristoranti','vedere','spiagge','piatti'].forEach(key=>{
+      const inp = document.getElementById('search-'+key);
+      inp.addEventListener('input', ()=>applyFilter(key));
+    });
+    // dish "vai al ristorante" links
+    document.getElementById('grid-piatti').addEventListener('click', e=>{
+      const a = e.target.closest('[data-goto]'); if(!a) return;
+      e.preventDefault(); goToCard(a.dataset.goto);
+    });
+  }
+
+  /* ===========================================================
+     GOOGLE INTEGRATION
+     =========================================================== */
+  let map=null, infoWindow=null, PlaceClass=null;
+  const placeCache = new Map();
+
+  function loadGoogle(key){
+    ((g)=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await(a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})({key:key,v:"weekly",language:"it",region:"IT"});
+  }
+
+  async function fetchPlace(place){
+    const q = place.name+' '+(place.addr||place.town||'');
+    if(placeCache.has(q)) return placeCache.get(q);
+    const prom = (async()=>{
+      try{
+        const {places} = await PlaceClass.searchByText({
+          textQuery: q,
+          fields: ['displayName','location','photos','rating','userRatingCount','reviews','regularOpeningHours','nationalPhoneNumber','websiteURI','googleMapsURI'],
+          maxResultCount: 1,
+          locationBias: { center: {lat:place.lat,lng:place.lng}, radius: 1200 },
+          language:'it', region:'IT'
+        });
+        return (places&&places[0])||null;
+      }catch(err){ console.warn('Places error for',q,err); return null; }
+    })();
+    placeCache.set(q, prom);
+    return prom;
+  }
+
+  function photoURI(p, w, h, i){
+    i = i||0;
+    try{ if(p && p.photos && p.photos.length>i) return p.photos[i].getURI({maxWidth:w||800, maxHeight:h||600}); }catch(e){}
+    return null;
+  }
+
+  /* enrich a place card with live Google data */
+  async function enrichCard(card){
+    if(card.dataset.enriched) return; card.dataset.enriched='1';
+    const id = card.dataset.id;
+    const place = RESTAURANTS.find(x=>x.id===id)||SIGHTS.find(x=>x.id===id)||BEACHES.find(x=>x.id===id);
+    if(!place) return;
+    const p = await fetchPlace(place);
+    if(!p){ const rt=card.querySelector('[data-rating]'); if(rt) rt.innerHTML=''; return; }
+    // foto da Google: per i ristoranti una mini-galleria (fino a 3 foto reali del posto); per luoghi/spiagge una sola
+    const iw = card.querySelector('[data-img]');
+    const overlay = (iw.querySelector('.badges')?iw.querySelector('.badges').outerHTML:'') + (iw.querySelector('.badge.dist')?iw.querySelector('.badge.dist').outerHTML:'');
+    const isFood = card.dataset.group==='food';
+    if(isFood){
+      const n = Math.min(3, (p.photos||[]).length);
+      if(n>0){
+        let strip='<div class="striprow">';
+        for(let i=0;i<n;i++){ strip += '<img loading="lazy" alt="'+esc(place.name)+'" src="'+photoURI(p,700,600,i)+'">'; }
+        strip+='</div>';
+        iw.innerHTML = strip + overlay;
+      }
+    } else {
+      const uri = photoURI(p,800,600,0);
+      if(uri){ iw.innerHTML = '<img loading="lazy" alt="'+esc(place.name)+'" src="'+uri+'">' + overlay; }
+    }
+    // rating
+    const rt = card.querySelector('[data-rating]');
+    if(rt){ if(p.rating){ rt.innerHTML = '<span class="stars">'+starStr(p.rating)+'</span> <b>'+p.rating.toFixed(1)+'</b> <span>('+(p.userRatingCount||0)+' recensioni Google)</span>'; } else rt.innerHTML=''; }
+    // phone
+    const ph = card.querySelector('[data-phone]');
+    if(ph && p.nationalPhoneNumber){ ph.innerHTML = '📞 <a href="tel:'+esc(p.nationalPhoneNumber.replace(/\s/g,''))+'">'+esc(p.nationalPhoneNumber)+'</a>'; }
+    // website
+    if(ph && p.websiteURI){ ph.innerHTML += (p.nationalPhoneNumber?' &nbsp;·&nbsp; ':'')+'🌐 <a href="'+esc(p.websiteURI)+'" target="_blank" rel="noopener">Sito</a>'; }
+    // hours
+    const hb = card.querySelector('[data-hours]');
+    if(hb && p.regularOpeningHours && p.regularOpeningHours.weekdayDescriptions){
+      hb.innerHTML = '<details class="hours"><summary>🕒 Orari di apertura</summary><ul>'+
+        p.regularOpeningHours.weekdayDescriptions.map(d=>'<li>'+esc(d)+'</li>').join('')+'</ul></details>';
+    }
+    // google maps link -> real listing
+    if(p.googleMapsURI){ const gm=card.querySelector('[data-gm]'); if(gm) gm.href=p.googleMapsURI; }
+    // reviews
+    const rv = card.querySelector('[data-reviews]');
+    if(rv && p.reviews && p.reviews.length){
+      const items = p.reviews.slice(0,2).map(r=>{
+        let txt = r.text; if(txt && typeof txt==='object') txt = txt.text||'';
+        txt = (txt||'').trim(); if(txt.length>230) txt = txt.slice(0,228)+'…';
+        const who = (r.authorAttribution&&r.authorAttribution.displayName)||'Utente Google';
+        const when = r.relativePublishTimeDescription||'';
+        const rr = r.rating? '★'.repeat(Math.round(r.rating)) : '';
+        return '<div class="rv"><div class="who"><span>'+esc(who)+'</span><small>'+esc(rr)+' '+esc(when)+'</small></div>'+esc(txt)+'</div>';
+      }).join('');
+      rv.innerHTML = '<div style="font-size:12px;color:var(--muted);font-weight:700">Recensioni da Google</div>'+items;
+    }
+  }
+
+  async function enrichDish(card){
+    if(card.dataset.enriched) return; card.dataset.enriched='1';
+    const id = card.dataset.id;
+    const d = DISHES.find(x=>x.id===id); if(!d||!d.photoQ) return;
+    const p = await fetchPlace({name:d.photoQ, town:d.where, lat:36.9, lng:15.05});
+    const uri = photoURI(p,800,600);
+    if(uri){
+      const iw = card.querySelector('[data-img]');
+      const badges = iw.querySelector('.badges').outerHTML;
+      iw.innerHTML = '<img loading="lazy" alt="'+esc(d.name)+'" src="'+uri+'">'+badges;
+    }
+  }
+
+  /* Lazy enrichment via IntersectionObserver */
+  let io=null;
+  function setupObserver(){
+    if(!HAS_KEY) return;
+    io = new IntersectionObserver((entries)=>{
+      entries.forEach(en=>{
+        if(en.isIntersecting){
+          const card = en.target;
+          io.unobserve(card);
+          enrichCard(card);
+        }
+      });
+    }, {rootMargin:'200px'});
+    document.querySelectorAll('#grid-ristoranti .card, #grid-vedere .card, #grid-spiagge .card').forEach(c=>io.observe(c));
+  }
+
+  /* ---------- MAP ---------- */
+  async function initMap(){
+    try{
+      loadGoogle(KEY);
+      const {Map, InfoWindow} = await google.maps.importLibrary("maps");
+      const {AdvancedMarkerElement, PinElement} = await google.maps.importLibrary("marker");
+      const {Place} = await google.maps.importLibrary("places");
+      PlaceClass = Place;
+
+      map = new Map(document.getElementById('map'), {
+        center: {lat:36.92,lng:15.02}, zoom: 10, mapId:'DEMO_MAP_ID',
+        mapTypeControl:false, streetViewControl:false, fullscreenControl:true
+      });
+      infoWindow = new InfoWindow();
+
+      // Masseria marker
+      const mPin = new PinElement({background:'#bf9b43',borderColor:'#fff',glyphColor:'#fff',glyph:'🏡',scale:1.3});
+      const mMarker = new AdvancedMarkerElement({map, position:MASSERIA, content:mPin.element, title:MASSERIA.name, gmpClickable:true, zIndex:9999});
+      mMarker.addListener('click', ()=>{
+        infoWindow.setContent('<div style="font-family:Inter,sans-serif;max-width:230px"><b>🏡 '+esc(MASSERIA.name)+'</b><br><span style="font-size:12px;color:#666">'+esc(MASSERIA.addr)+'</span></div>');
+        infoWindow.open({map, anchor:mMarker});
+      });
+
+      const groups = [
+        {arr:RESTAURANTS, g:'food'},
+        {arr:SIGHTS, g:'see'},
+        {arr:BEACHES, g:'beach'}
+      ];
+      const markerStore = {food:[],see:[],beach:[]};
+      const bounds = new google.maps.LatLngBounds();
+      bounds.extend(MASSERIA);
+
+      groups.forEach(({arr,g})=>{
+        arr.forEach(place=>{
+          const pin = new PinElement({background:GROUP_COLOR[g],borderColor:'#fff',glyphColor:'#fff',glyph:GROUP_GLYPH[g]});
+          const mk = new AdvancedMarkerElement({map, position:{lat:place.lat,lng:place.lng}, content:pin.element, title:place.name, gmpClickable:true});
+          markerStore[g].push(mk);
+          bounds.extend({lat:place.lat,lng:place.lng});
+          mk.addListener('click', async ()=>{
+            infoWindow.setContent(infoLoading(place));
+            infoWindow.open({map, anchor:mk});
+            const p = await fetchPlace(place);
+            infoWindow.setContent(infoContent(place, p, g));
+          });
+        });
+      });
+      map.fitBounds(bounds, 40);
+
+      // legend toggles
+      document.getElementById('legend').addEventListener('click', e=>{
+        const lg = e.target.closest('.lg'); if(!lg) return;
+        const g = lg.dataset.grp;
+        lg.classList.toggle('off');
+        const show = !lg.classList.contains('off');
+        markerStore[g].forEach(mk=> mk.map = show? map : null );
+      });
+
+      setupObserver();
+    }catch(err){
+      console.error(err);
+      document.getElementById('map').style.display='none';
+      const fb=document.getElementById('mapFallback'); fb.style.display='block';
+      fb.innerHTML = '<h3 style="margin:0 0 6px">⚠️ Mappa non caricata</h3><p style="margin:0;color:#7a6a57">'+esc(err.message||'Errore Google Maps')+'<br>Controlla che la chiave sia valida e che <b>Maps JavaScript API</b> e <b>Places API (New)</b> siano attive.</p>';
+    }
+  }
+
+  function infoLoading(place){
+    return '<div style="font-family:Inter,sans-serif;max-width:240px"><b>'+esc(place.name)+'</b><br>'+
+      '<span style="font-size:12px;color:#888">Carico foto e dati da Google…</span></div>';
+  }
+  function infoContent(place, p, g){
+    const uri = photoURI(p,360,220);
+    const min = driveMin(place.z);
+    const rating = (p&&p.rating)? '<div style="margin:4px 0;font-size:13px"><span style="color:#bf9b43">'+starStr(p.rating)+'</span> <b>'+p.rating.toFixed(1)+'</b> <span style="color:#888">('+(p.userRatingCount||0)+')</span></div>':'';
+    const img = uri? '<img src="'+uri+'" alt="'+esc(place.name)+'" style="width:100%;height:130px;object-fit:cover;border-radius:8px;margin-bottom:8px">':'';
+    return '<div style="font-family:Inter,sans-serif;max-width:250px">'+img+
+      '<b style="font-size:15px">'+esc(place.name)+'</b>'+
+      '<div style="font-size:12px;color:#888;margin:2px 0">📍 '+esc(place.town||'')+(min!=null?' · 🚗 ~'+min+' min':'')+'</div>'+
+      rating+
+      '<p style="font-size:12.5px;color:#444;margin:6px 0 8px">'+esc((place.desc||'').slice(0,110))+((place.desc||'').length>110?'…':'')+'</p>'+
+      '<button onclick="window.__goToCard(\''+place.id+'\')" style="width:100%;border:none;background:#c0563b;color:#fff;padding:9px;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit">Vai alla scheda →</button>'+
+      '</div>';
+  }
+
+  /* ---------- SETUP BANNER ---------- */
+  function renderSetupBox(){
+    const box = document.getElementById('setupBox');
+    if(HAS_KEY){
+      box.innerHTML = '<div class="setup"><span class="pill-ok">✓ Chiave Google inserita</span> '+
+        '<span style="color:var(--muted);font-size:13.5px">Mappa, foto, recensioni e orari sono attivi. Se qualcosa non carica, controlla le API abilitate e le restrizioni della chiave.</span></div>';
+      return;
+    }
+    box.innerHTML =
+    '<div class="setup">'+
+      '<h3>⚙️ Setup chiave Google <span class="pill-warn">chiave non ancora inserita</span></h3>'+
+      '<p style="margin:4px 0 8px;color:var(--muted)">La guida funziona già (schede, piatti, link a Google Maps). Per <b>mappa interattiva, foto, recensioni e orari in diretta</b> serve una chiave Google Maps Platform — di norma <b>gratis</b> per un uso personale come questo.</p>'+
+      '<ol>'+
+        '<li>Vai su <a href="https://console.cloud.google.com/" target="_blank" rel="noopener">console.cloud.google.com</a>, accedi e crea un progetto (es. “Vacanza Noto”).</li>'+
+        '<li>Attiva la <b>fatturazione</b> (richiede una carta; resterai quasi certamente nella soglia gratuita).</li>'+
+        '<li>In “API e servizi → Libreria” abilita: <b>Maps JavaScript API</b>, <b>Places API (New)</b>.</li>'+
+        '<li>In “Credenziali” crea una <b>Chiave API</b> e copiala.</li>'+
+        '<li>Apri questo file con un editor di testo e sostituisci <code>INCOLLA_QUI_LA_TUA_CHIAVE</code> con la tua chiave (riga in alto, <code>const GOOGLE_MAPS_API_KEY</code>). Salva e riapri.</li>'+
+      '</ol>'+
+      '<details><summary>Consigli di sicurezza e costi</summary>'+
+        '<p style="font-size:13.5px;color:var(--muted);margin:8px 0 0">• La chiave è visibile a chi apre il file: per uso personale va bene, ma <b>limitala alle sole API</b> Maps JavaScript + Places nelle restrizioni della chiave. Se pubblichi il file online, aggiungi una restrizione per “referrer HTTP”.<br>'+
+        '• Imposta un <b>budget/avviso</b> nella sezione Fatturazione (es. 5€) per stare tranquillo.<br>'+
+        '• Le schede caricano i dati solo quando le scorri, così le chiamate restano poche.</p>'+
+      '</details>'+
+    '</div>';
+  }
+
+  /* ---------- INIT ---------- */
+  function init(){
+    render();
+    setupTabs();
+    setupSearch();
+    renderSetupBox();
+    if(HAS_KEY){ initMap(); }
+    else { document.getElementById('map').style.display='none'; document.getElementById('mapFallback').style.display='block'; }
+  }
+  if(document.readyState!=='loading') init(); else document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
+</body>
+</html>
