@@ -155,6 +155,25 @@
   .tag-eat{display:inline-block;background:var(--terracotta);color:#fff;border-radius:6px;padding:2px 7px;font-size:11.5px;font-weight:600;text-decoration:none}
   .tag-eat:hover{background:var(--terracotta-d)}
   .tag-eat.txt{background:#efe7da;color:#6a5a45}
+  .dishrow{margin-top:2px;display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+  .dishrow .lbl{font-size:11.5px;color:var(--muted);font-weight:700;margin-right:1px}
+  .tag-dish{display:inline-block;background:#fff3e0;border:1px solid #e9c89a;color:#9a5b1e;border-radius:20px;padding:3px 9px;font-size:11.5px;font-weight:600;text-decoration:none;cursor:pointer}
+  .tag-dish:hover{background:#ffe7c4}
+  .pm-overlay{position:fixed;inset:0;background:rgba(28,18,10,.62);display:none;align-items:flex-start;justify-content:center;z-index:1000;padding:20px;overflow-y:auto}
+  .pm-overlay.open{display:flex}
+  .pm-box{background:var(--card);max-width:560px;width:100%;border-radius:var(--r);position:relative;box-shadow:0 24px 70px rgba(0,0,0,.45);margin:auto}
+  .pm-close{position:absolute;top:10px;right:10px;z-index:3;border:none;background:rgba(0,0,0,.55);color:#fff;width:36px;height:36px;border-radius:50%;font-size:17px;cursor:pointer;line-height:1}
+  .pm-load{padding:48px 20px;text-align:center;color:var(--muted)}
+  .pm-gallery{display:flex;gap:2px;border-radius:var(--r) var(--r) 0 0;overflow:hidden}
+  .pm-gallery img{flex:1 1 0;min-width:0;height:220px;object-fit:cover}
+  .pm-content{padding:15px 18px 20px}
+  .pm-badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+  .pm-content h2{margin:0 0 2px;font-size:21px}
+  .pm-dishes{margin:11px 0;background:#faf4ea;border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .pm-dishes b{font-size:13px;width:100%;margin-bottom:2px}
+  .pm-meta{font-size:13.5px;margin:6px 0}
+  .pm-reviews{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+  .pm-rev{font-size:12.5px;color:#4a3d2e;background:#faf6ef;border:1px solid var(--line);border-radius:10px;padding:8px 10px}
 
   footer{max-width:1200px;margin:0 auto;padding:24px 16px 50px;color:var(--muted);font-size:12.5px;border-top:1px solid var(--line)}
   .count{font-size:13px;color:var(--muted);margin:0 0 12px}
@@ -206,7 +225,7 @@
     <div id="setupBox"></div>
     <div class="panel-head">
       <h2>La mappa del viaggio</h2>
-      <p>Tutti i posti della guida in un colpo d'occhio. Tocca un pin: si apre l'anteprima con foto e valutazione, e da lì il pulsante <b>“Vai alla scheda”</b> ti porta alla card giusta. La 🏡 è la Masseria degli Ulivi.</p>
+      <p>Tutti i posti della guida in un colpo d'occhio. Tocca un pin: si apre l'anteprima, e da lì <b>“📋 Espandi scheda”</b> apre tutte le info — foto, valutazione, recensioni, orari e i <b>piatti tipici da provare lì</b> — restando sulla mappa. La 🏡 è la Masseria degli Ulivi.</p>
     </div>
     <div class="map-tools">
       <div class="legend" id="legend">
@@ -632,6 +651,30 @@ const BEACHES = [
     ['paranza','d8'],['pescato','d8'],['vongole','d8'],['cozze','d8'],['pesce','d8'],['bottarga','d8'],
     ['pane cunzato','d24'],['nero d','d25']
   ];
+  // mappa precisa parola->piatto (per "piatti tipici qui" su schede e modale)
+  const DISH_MATCH = [
+    ['granit','d1'],['brioche col tuppo','d1'],['cioccolato','d2'],['mpanatigghi','d3'],['scacc','d4'],
+    ['ravioli di ricotta','d5'],['ravioli ricotta','d5'],['cavat','d6'],['lolli','d6'],
+    ['coniglio','d7'],['stimpirata','d7'],['ricci','d8'],['tonno','d9'],['ventresca','d9'],['bottarga','d9'],
+    ['gamberi','d10'],['gambero','d10'],['gamberoni','d10'],['beccafico','d11'],['sarde','d11'],['caponata','d12'],
+    ['maccu','d13'],['arancin','d14'],['cassat','d15'],['cannol','d16'],['biancomangiare','d17'],['gelo di melone','d18'],
+    ['caciocavallo','d19'],['mandorla','d20'],['torrone','d20'],['pomodoro di pachino','d21'],['datterino','d21'],['ciliegino','d21'],
+    ['salsiccia','d22'],['pane cunzato','d24'],['pane cunzatu','d24'],['nero d','d25'],['moscato','d26'],['passito','d26'],
+    ['cerasuolo','d27'],['impanata','d28'],['mpanata','d28']
+  ];
+  function dishesAt(place){
+    const ids=new Set();
+    DISHES.forEach(d=>{ if((d.tryAt||[]).some(n=> n===place.name || n.includes(place.name) || place.name.includes(n))) ids.add(d.id); });
+    const hay=((place.spec||[]).join(' ')+' '+(place.desc||'')).toLowerCase();
+    for(const [kw,id] of DISH_MATCH){ if(hay.includes(kw)) ids.add(id); }
+    return DISHES.filter(d=>ids.has(d.id));
+  }
+  function dishTagsHtml(place, group){
+    if(group!=='food') return '';
+    const ds=dishesAt(place); if(!ds.length) return '';
+    return '<div class="dishrow"><span class="lbl">🍽️ Piatti tipici qui:</span>'+
+      ds.slice(0,6).map(d=>'<a class="tag-dish" href="#" data-goto="'+d.id+'">'+(d.emoji||'')+' '+esc(d.name)+'</a>').join('')+'</div>';
+  }
   function restaurantDishImg(r){
     const hay = ((r.spec||[]).join(' ')+' '+(r.desc||'')).toLowerCase();
     for(const [kw,id] of DISH_KW){ if(hay.includes(kw) && DISH_IMG[id]) return DISH_IMG[id]; }
@@ -677,6 +720,7 @@ const BEACHES = [
         <div class="rating" data-rating><span class="loading">${HAS_KEY?'Carico valutazione…':''}</span></div>
         <p class="desc">${esc(place.desc||'')}</p>
         ${specHtml(place.spec)}
+        ${dishTagsHtml(place, group)}
         ${ place.ticket? '<div class="meta">🎟️ Ingresso: '+esc(place.ticket)+'</div>':'' }
         ${ place.services? '<div class="meta">🏖️ '+esc(place.services)+'</div>':'' }
         <div class="meta" data-phone></div>
@@ -791,19 +835,88 @@ const BEACHES = [
     window.scrollTo({top:0,behavior:'smooth'});
     setTimeout(enrichVisible, 200);
   }
+  function resetFilters(key){
+    const fb=document.getElementById('filter-'+key);
+    if(fb) fb.querySelectorAll('.chip').forEach(c=>c.classList.toggle('active', c.dataset.f==='*'));
+    const bb=document.getElementById('badgefilter-'+key);
+    if(bb) bb.querySelectorAll('.bchip').forEach(c=>c.classList.remove('active'));
+    const s=document.getElementById('search-'+key); if(s) s.value='';
+    applyFilter(key);
+  }
   function goToCard(id){
-    let group='food', tab='ristoranti';
-    if(id[0]==='s'){group='see';tab='vedere';}
-    else if(id[0]==='p'){group='beach';tab='spiagge';}
-    else if(id[0]==='d'){group='dish';tab='piatti';}
+    let tab='ristoranti';
+    if(id[0]==='s') tab='vedere'; else if(id[0]==='p') tab='spiagge'; else if(id[0]==='d') tab='piatti';
+    closeModal();
     activateTab(tab);
+    resetFilters(tab);  // togli eventuali filtri così la card non è nascosta
     setTimeout(()=>{
       const el = document.getElementById('card-'+id);
       if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
-    }, 120);
+    }, 360);
   }
   // expose for inline map button / dish links
   window.__goToCard = goToCard;
+
+  /* ---------- MODALE "ESPANDI SCHEDA" ---------- */
+  function ensureModal(){
+    let m=document.getElementById('placeModal');
+    if(!m){
+      m=document.createElement('div'); m.id='placeModal'; m.className='pm-overlay';
+      m.innerHTML='<div class="pm-box"><button class="pm-close" aria-label="Chiudi">✕</button><div class="pm-body"></div></div>';
+      document.body.appendChild(m);
+      m.addEventListener('click', e=>{
+        if(e.target===m || e.target.closest('.pm-close')){ closeModal(); return; }
+        const a=e.target.closest('[data-goto]'); if(a){ e.preventDefault(); goToCard(a.dataset.goto); }
+      });
+      document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+    }
+    return m;
+  }
+  function closeModal(){ const m=document.getElementById('placeModal'); if(m) m.classList.remove('open'); document.body.style.overflow=''; }
+  async function expandPlace(id){
+    const place=RESTAURANTS.find(x=>x.id===id)||SIGHTS.find(x=>x.id===id)||BEACHES.find(x=>x.id===id);
+    if(!place) return;
+    const m=ensureModal(); const body=m.querySelector('.pm-body');
+    body.innerHTML='<div class="pm-load">Carico foto e dati da Google…</div>';
+    m.classList.add('open'); document.body.style.overflow='hidden';
+    const p = HAS_KEY ? await fetchPlace(place) : null;
+    if(!m.classList.contains('open')) return;
+    body.innerHTML=placeModalContent(place,p);
+  }
+  window.__expandPlace=expandPlace;
+  function placeModalContent(place,p){
+    const photos=(p&&p.photos)||[];
+    const n=Math.min(3,photos.length);
+    let gal='';
+    if(n>0){ gal='<div class="pm-gallery">'; for(let i=0;i<n;i++) gal+='<img src="'+photoURI(p,720,520,i)+'" alt="'+esc(place.name)+'">'; gal+='</div>'; }
+    const min=(place.min!=null)?place.min:driveMin(place.z);
+    const topB=place.top?'<span class="badge top">⭐ Top</span>':'';
+    const vibeB=place.vibe==='verace'?'<span class="badge verace">🍴 Verace</span>':place.vibe==='carino'?'<span class="badge carino">✨ Posto carino</span>':'';
+    const priceB=place.price?'<span class="badge type">'+esc(place.price)+'</span>':'';
+    const distB=min!=null?'<span class="badge dist" style="position:static">🚗 ~'+min+' min</span>':'';
+    const rating=(p&&p.rating)?'<div style="margin:6px 0;font-size:14px"><span class="stars">'+starStr(p.rating)+'</span> <b>'+p.rating.toFixed(1)+'</b> <span style="color:var(--muted)">('+(p.userRatingCount||0)+' recensioni Google)</span></div>':'';
+    const ds=dishesAt(place);
+    const dishHtml=ds.length?'<div class="pm-dishes"><b>🍽️ Piatti tipici da provare qui</b>'+ds.map(d=>'<a class="tag-dish" href="#" data-goto="'+d.id+'">'+(d.emoji||'')+' '+esc(d.name)+'</a>').join('')+'</div>':'';
+    const phone=(p&&p.nationalPhoneNumber)?'<div class="pm-meta">📞 <a href="tel:'+esc(p.nationalPhoneNumber.replace(/\s/g,''))+'">'+esc(p.nationalPhoneNumber)+'</a>'+(p.websiteURI?' &nbsp;·&nbsp; 🌐 <a href="'+esc(p.websiteURI)+'" target="_blank" rel="noopener">Sito</a>':'')+'</div>':'';
+    const hours=(p&&p.regularOpeningHours&&p.regularOpeningHours.weekdayDescriptions)?'<details class="hours"><summary>🕒 Orari di apertura</summary><ul>'+p.regularOpeningHours.weekdayDescriptions.map(d=>'<li>'+esc(d)+'</li>').join('')+'</ul></details>':'';
+    let reviews='';
+    if(p&&p.reviews&&p.reviews.length){
+      reviews='<div class="pm-reviews">'+p.reviews.slice(0,2).map(r=>{
+        let t=r.text; if(t&&typeof t==='object') t=t.text||''; t=(t||'').trim(); if(t.length>220) t=t.slice(0,218)+'…';
+        const who=(r.authorAttribution&&r.authorAttribution.displayName)||'Utente Google';
+        return '<div class="pm-rev"><b>'+esc(who)+'</b> '+(r.rating?'<span style="color:var(--gold)">'+'★'.repeat(Math.round(r.rating))+'</span>':'')+'<br>'+esc(t)+'</div>';
+      }).join('')+'</div>';
+    }
+    const gm=(p&&p.googleMapsURI)?p.googleMapsURI:searchUrl(place);
+    return gal+'<div class="pm-content">'+
+      '<div class="pm-badges">'+topB+vibeB+priceB+distB+'</div>'+
+      '<h2>'+esc(place.name)+'</h2><div class="town">📍 '+esc(place.town||'')+'</div>'+
+      rating+
+      '<p class="desc">'+esc(place.desc||'')+'</p>'+
+      specHtml(place.spec)+dishHtml+phone+hours+reviews+
+      '<div class="actions" style="margin-top:12px"><a class="btn dir" href="'+dirUrl(place)+'" target="_blank" rel="noopener">🧭 Indicazioni</a> <a class="btn gm" href="'+gm+'" target="_blank" rel="noopener">📍 Apri in Google Maps</a></div>'+
+      '</div>';
+  }
 
   /* ---------- SEARCH ---------- */
   function setupSearch(){
@@ -811,10 +924,12 @@ const BEACHES = [
       const inp = document.getElementById('search-'+key);
       inp.addEventListener('input', ()=>applyFilter(key));
     });
-    // dish "vai al ristorante" links
-    document.getElementById('grid-piatti').addEventListener('click', e=>{
-      const a = e.target.closest('[data-goto]'); if(!a) return;
-      e.preventDefault(); goToCard(a.dataset.goto);
+    // link incrociati: piatto->ristorante e ristorante->piatto tipico
+    ['grid-piatti','grid-ristoranti'].forEach(gid=>{
+      document.getElementById(gid).addEventListener('click', e=>{
+        const a = e.target.closest('[data-goto]'); if(!a) return;
+        e.preventDefault(); goToCard(a.dataset.goto);
+      });
     });
   }
 
@@ -1029,7 +1144,7 @@ const BEACHES = [
       '<div style="font-size:12px;color:#888;margin:2px 0">📍 '+esc(place.town||'')+(min!=null?' · 🚗 ~'+min+' min':'')+'</div>'+
       rating+
       '<p style="font-size:12.5px;color:#444;margin:6px 0 8px">'+esc((place.desc||'').slice(0,110))+((place.desc||'').length>110?'…':'')+'</p>'+
-      '<button onclick="window.__goToCard(\''+place.id+'\')" style="width:100%;border:none;background:#c0563b;color:#fff;padding:9px;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit">Vai alla scheda →</button>'+
+      '<button onclick="window.__expandPlace(\''+place.id+'\')" style="width:100%;border:none;background:#c0563b;color:#fff;padding:9px;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit">📋 Espandi scheda</button>'+
       '</div>';
   }
 
