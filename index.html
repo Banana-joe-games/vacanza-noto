@@ -877,18 +877,21 @@ const BEACHES = [
     const place=RESTAURANTS.find(x=>x.id===id)||SIGHTS.find(x=>x.id===id)||BEACHES.find(x=>x.id===id);
     if(!place) return;
     const m=ensureModal(); const body=m.querySelector('.pm-body');
-    body.innerHTML='<div class="pm-load">Carico foto e dati da Google…</div>';
+    // mostra subito tutto il contenuto statico (titolo, descrizione, piatti tipici, pulsanti): niente attesa
+    body.innerHTML=placeModalContent(place, null, HAS_KEY);
     m.classList.add('open'); document.body.style.overflow='hidden';
-    const p = HAS_KEY ? await fetchPlace(place) : null;
-    if(!m.classList.contains('open')) return;
-    body.innerHTML=placeModalContent(place,p);
+    if(HAS_KEY){
+      const p = await fetchPlace(place);
+      if(m.classList.contains('open') && p) body.innerHTML=placeModalContent(place, p, false);  // aggiorna con foto/valutazione/recensioni/orari
+    }
   }
   window.__expandPlace=expandPlace;
-  function placeModalContent(place,p){
+  function placeModalContent(place,p,loading){
     const photos=(p&&p.photos)||[];
     const n=Math.min(3,photos.length);
     let gal='';
     if(n>0){ gal='<div class="pm-gallery">'; for(let i=0;i<n;i++) gal+='<img src="'+photoURI(p,720,520,i)+'" alt="'+esc(place.name)+'">'; gal+='</div>'; }
+    else if(loading){ gal='<div class="pm-load" style="padding:22px 20px">📷 Carico foto, valutazione e recensioni da Google…</div>'; }
     const min=(place.min!=null)?place.min:driveMin(place.z);
     const topB=place.top?'<span class="badge top">⭐ Top</span>':'';
     const vibeB=place.vibe==='verace'?'<span class="badge verace">🍴 Verace</span>':place.vibe==='carino'?'<span class="badge carino">✨ Posto carino</span>':'';
