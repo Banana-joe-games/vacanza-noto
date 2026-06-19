@@ -801,7 +801,7 @@ const BEACHES = [
     it.legs.forEach(l=>{
       tl+='<div class="itin-drive">🚗 ~'+l.leg+' min</div>'+
         '<div class="itin-row stop '+l.kind+'"><span class="islot">'+l.icon+' '+esc(l.slot)+'</span>'+
-        '<a class="ilink" href="#" data-goto="'+l.id+'">'+esc(l.name)+'</a>'+
+        '<a class="ilink" href="#" data-expand="'+l.id+'">'+esc(l.name)+'</a>'+
         (l.town?' <span class="itown">· '+esc(l.town)+'</span>':'')+
         (l.note?'<div class="inote">'+esc(l.note)+'</div>':'')+'</div>';
     });
@@ -981,12 +981,13 @@ const BEACHES = [
       }).join('')+'</div>';
     }
     const gm=(p&&p.googleMapsURI)?p.googleMapsURI:searchUrl(place);
+    const extra=(place.ticket?'<div class="pm-meta">🎟️ Ingresso: '+esc(place.ticket)+'</div>':'')+(place.services?'<div class="pm-meta">🏖️ '+esc(place.services)+'</div>':'');
     return gal+'<div class="pm-content">'+
       '<div class="pm-badges">'+topB+vibeB+priceB+distB+'</div>'+
       '<h2>'+esc(place.name)+'</h2><div class="town">📍 '+esc(place.town||'')+'</div>'+
       rating+
       '<p class="desc">'+esc(place.desc||'')+'</p>'+
-      specHtml(place.spec)+dishHtml+phone+hours+reviews+
+      extra+specHtml(place.spec)+dishHtml+phone+hours+reviews+
       '<div class="actions" style="margin-top:12px"><a class="btn dir" href="'+dirUrl(place)+'" target="_blank" rel="noopener">🧭 Indicazioni</a> <a class="btn gm" href="'+gm+'" target="_blank" rel="noopener">📍 Apri in Google Maps</a></div>'+
       '</div>';
   }
@@ -997,12 +998,18 @@ const BEACHES = [
       const inp = document.getElementById('search-'+key);
       inp.addEventListener('input', ()=>applyFilter(key));
     });
-    // link incrociati: piatto->ristorante e ristorante->piatto tipico
-    ['grid-piatti','grid-ristoranti','grid-itinerari'].forEach(gid=>{
+    // link incrociati: piatto->ristorante e ristorante->piatto tipico (cambiano scheda)
+    ['grid-piatti','grid-ristoranti'].forEach(gid=>{
       document.getElementById(gid).addEventListener('click', e=>{
         const a = e.target.closest('[data-goto]'); if(!a) return;
         e.preventDefault(); goToCard(a.dataset.goto);
       });
+    });
+    // negli itinerari le tappe aprono la scheda in una MODALE (così non si perde l'itinerario)
+    const ig=document.getElementById('grid-itinerari');
+    if(ig) ig.addEventListener('click', e=>{
+      const a=e.target.closest('[data-expand]'); if(!a) return;
+      e.preventDefault(); expandPlace(a.dataset.expand);
     });
   }
 
