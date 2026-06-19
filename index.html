@@ -174,6 +174,28 @@
   .pm-meta{font-size:13.5px;margin:6px 0}
   .pm-reviews{margin-top:10px;display:flex;flex-direction:column;gap:8px}
   .pm-rev{font-size:12.5px;color:#4a3d2e;background:#faf6ef;border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+  .itin-grid{grid-template-columns:repeat(auto-fill,minmax(430px,1fr))}
+  @media(max-width:560px){ .itin-grid{grid-template-columns:1fr} }
+  .card.itin{padding:16px 18px}
+  .itin-head{margin-bottom:6px}
+  .itags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+  .itag{color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px}
+  .card.itin h3{margin:0 0 4px;font-size:18px}
+  .itin-tot{font-size:13px;font-weight:700;color:var(--teal)}
+  .itin-timeline{margin-top:10px;border-left:2px dashed var(--line);padding-left:14px;display:flex;flex-direction:column;gap:2px}
+  .itin-row{position:relative;padding:5px 0}
+  .itin-row.base{font-size:13px;color:var(--muted)}
+  .itin-row.base b{color:var(--ink)}
+  .itin-drive{font-size:11.5px;color:var(--muted);padding:2px 0;font-weight:600}
+  .itin-row.stop{padding:7px 10px;border-radius:10px;background:#faf6ef}
+  .itin-row.stop.beach{background:#eef6f7}
+  .itin-row.stop.eat{background:#fbf1ec}
+  .itin-row.stop.see{background:#f5f0e6}
+  .islot{display:block;font-size:11px;font-weight:800;letter-spacing:.02em;color:var(--muted);text-transform:uppercase}
+  .ilink{font-weight:700;color:var(--ink);text-decoration:none;border-bottom:2px solid var(--gold)}
+  .ilink:hover{color:var(--terracotta)}
+  .itown{font-size:12px;color:var(--muted)}
+  .inote{font-size:12.5px;color:#5a4c3a;margin-top:2px}
 
   footer{max-width:1200px;margin:0 auto;padding:24px 16px 50px;color:var(--muted);font-size:12.5px;border-top:1px solid var(--line)}
   .count{font-size:13px;color:var(--muted);margin:0 0 12px}
@@ -211,6 +233,7 @@
 <nav class="tabbar">
   <div class="tabbar-inner" id="tabbar">
     <button class="tab active" data-tab="mappa">🗺️ Mappa</button>
+    <button class="tab" data-tab="itinerari">📅 Itinerari</button>
     <button class="tab" data-tab="piatti">🍝 Piatti tipici</button>
     <button class="tab" data-tab="ristoranti">🍴 Ristoranti & Bar</button>
     <button class="tab" data-tab="vedere">🏛️ Da vedere</button>
@@ -297,6 +320,16 @@
     </div>
     <p class="count" id="count-spiagge"></p>
     <div class="grid" id="grid-spiagge"></div>
+  </section>
+
+  <!-- ===================== ITINERARI ===================== -->
+  <section class="panel" id="panel-itinerari">
+    <div class="panel-head">
+      <h2>Itinerari giornalieri</h2>
+      <p>Giornate complete con partenza e rientro alla <b>Masseria degli Ulivi</b>: visita la mattina, pranzo, visita o spiaggia il pomeriggio, cena. Ogni tappa è cliccabile. I tempi in auto sono stime porta a porta.</p>
+    </div>
+    <div id="filter-itinerari" class="filters"></div>
+    <div class="grid itin-grid" id="grid-itinerari"></div>
   </section>
 
 </main>
@@ -609,6 +642,9 @@ const BEACHES = [
  {id:'p20',name:'Sampieri',town:'Scicli',z:'scicli',type:'sabbia',lat:36.7209,lng:14.7383,services:'Libera, camping, bar e noleggi, parcheggi',desc:`Due km di sabbia con pineta e, in fondo, lo scheletro della Fornace Penna ("la Mannara" di Montalbano).`},
  {id:'p21',name:'Marina di Modica',town:'Modica',z:'modica',type:'sabbia',lat:36.7116,lng:14.7731,services:'Lidi + ampia parte libera, parcheggi gratuiti, Bandiera Blu',desc:`Sabbia finissima "africana" con dune, mare turchese e fondali bassi: buona anche per surf e windsurf.`}
 ];
+
+  const ITINERARIES = [{"id": "it1", "title": "Noto barocca e tramonto sul mare", "tags": ["Cultura", "Mare"], "total": 45, "ret": 20, "legs": [{"slot": "Mattina", "icon": "🌅", "kind": "see", "id": "s1", "name": "Cattedrale di San Nicolò", "town": "Noto", "leg": 13, "note": "Passeggiata sul Corso: Cattedrale, Palazzo Nicolaci, Palazzo Ducezio"}, {"slot": "Pranzo", "icon": "🍝", "kind": "eat", "id": "r3", "name": "Ristorante Crocifisso", "town": "Noto", "leg": 2, "note": "Cucina netina nel centro storico"}, {"slot": "Pomeriggio", "icon": "☀️", "kind": "beach", "id": "p6", "name": "Lido di Noto", "town": "Noto", "leg": 8, "note": "Pomeriggio in spiaggia al Lido di Noto"}, {"slot": "Cena", "icon": "🌙", "kind": "eat", "id": "r10", "name": "Ristorante Manna", "town": "Lido di Noto", "leg": 2, "note": "Cena elegante fronte mare al Lido di Noto"}]}, {"id": "it2", "title": "Rovine e canyon: Noto Antica e Cava Grande", "tags": ["Natura", "Cultura"], "total": 58, "ret": 12, "legs": [{"slot": "Mattina", "icon": "🌅", "kind": "see", "id": "s11", "name": "Riserva di Cavagrande del Cassibile", "town": "Avola", "leg": 5, "note": "Discesa ai laghetti smeraldo di Cavagrande (impegnativa, scarpe da trekking)"}, {"slot": "Pranzo", "icon": "🍝", "kind": "eat", "id": "r74", "name": "Agriturismo Monte Criscione", "town": "Avola (campagna)", "leg": 12, "note": "Pranzo in agriturismo sulle colline di Avola"}, {"slot": "Pomeriggio", "icon": "☀️", "kind": "see", "id": "s8", "name": "Parco Archeologico di Noto Antica", "town": "Noto", "leg": 19, "note": "I ruderi di Noto Antica, la città prima del terremoto del 1693"}, {"slot": "Cena", "icon": "🌙", "kind": "eat", "id": "r79", "name": "CasaMatta", "town": "Noto", "leg": 10, "note": "Pizza serale a Noto"}]}, {"id": "it3", "title": "Relax sulle spiagge di Avola", "tags": ["Mare"], "total": 47, "ret": 16, "legs": [{"slot": "Mattina", "icon": "🌅", "kind": "beach", "id": "p12", "name": "Spiaggia del Gelsomineto", "town": "Avola", "leg": 20, "note": "Mattinata alla caletta del Gelsomineto"}, {"slot": "Pranzo", "icon": "🍝", "kind": "eat", "id": "r82", "name": "Miramare Sea Restaurant", "town": "Avola (lido)", "leg": 7, "note": "Pesce con vista sul lungomare di Avola"}, {"slot": "Pomeriggio", "icon": "☀️", "kind": "beach", "id": "p14", "name": "Lido di Avola", "town": "Avola", "leg": 2, "note": "Sabbia e fondale basso al Lido di Avola"}, {"slot": "Cena", "icon": "🌙", "kind": "eat", "id": "r80", "name": "Trattoria Chapeau", "town": "Avola", "leg": 2, "note": "Trattoria di mare ad Avola"}]}, {"id": "it4", "title": "Riserva di Vendicari: natura e mare", "tags": ["Natura", "Mare"], "total": 55, "ret": 21, "legs": [{"slot": "Mattina", "icon": "🌅", "kind": "beach", "id": "p1", "name": "Calamosche", "town": "Riserva di Vendicari, Noto", "leg": 25, "note": "Trekking nella riserva fino alla caletta di Calamosche"}, {"slot": "Pranzo", "icon": "🍝", "kind": "eat", "id": "r83", "name": "Bio Agriturismo Torre Vendicari", "town": "Noto (Vendicari)", "leg": 3, "note": "Agriturismo biologico a un passo dalla riserva"}, {"slot": "Pomeriggio", "icon": "☀️", "kind": "see", "id": "s10", "name": "Area Archeologica di Eloro", "town": "Noto", "leg": 4, "note": "Gli scavi greci di Eloro affacciati sulla spiaggia"}, {"slot": "Cena", "icon": "🌙", "kind": "eat", "id": "r85", "name": "Ristorante Le Muse", "town": "Noto (Eloro)", "leg": 2, "note": "Cucina di mare vicino agli scavi"}]}, {"id": "it5", "title": "Marzamemi, borgo di tonnara", "tags": ["Mare", "Borgo"], "total": 81, "ret": 38, "legs": [{"slot": "Mattina", "icon": "🌅", "kind": "beach", "id": "p8", "name": "Spiaggia della Spinazza", "town": "Marzamemi", "leg": 37, "note": "Mattina alla Spinazza, la spiaggia del borgo"}, {"slot": "Pranzo", "icon": "🍝", "kind": "eat", "id": "r18", "name": "Ristorante Campisi", "town": "Marzamemi", "leg": 2, "note": "Il tonno della famiglia che lo lavora dal 1854"}, {"slot": "Pomeriggio", "icon": "☀️", "kind": "beach", "id": "p9", "name": "Spiaggia di Marzamemi", "town": "Marzamemi", "leg": 2, "note": "Passeggiata nelle due piazze e bagno tra le case di pescatori"}, {"slot": "Cena", "icon": "🌙", "kind": "eat", "id": "r17", "name": "Cortile Arabo", "town": "Marzamemi", "leg": 2, "note": "Cena d'autore in un cortile arabo sugli scogli"}]}, {"id": "it6", "title": "L'estremo Sud: Portopalo e Isola delle Correnti", "tags": ["Mare"], "total": 128, "ret": 48, "legs": [{"slot": "Mattina", "icon": "🌅", "kind": "beach", "id": "p10", "name": "Spiaggia di Carratois", "town": "Portopalo di Capo Passero", "leg": 51, "note": "Sabbia dorata a Carratois"}, {"slot": "Pranzo", "icon": "🍝", "kind": "eat", "id": "r23", "name": "Al Gambero Rosso", "town": "Portopalo di Capo Passero", "leg": 9, "note": "Il gambero rosso dove sbarca"}, {"slot": "Pomeriggio", "icon": "☀️", "kind": "beach", "id": "p11", "name": "Isola delle Correnti", "town": "Portopalo di Capo Passero", "leg": 10, "note": "Il punto più a sud della Sicilia, dove si toccano due mari"}, {"slot": "Cena", "icon": "🌙", "kind": "eat", "id": "r24", "name": "U Saracenu", "town": "Portopalo di Capo Passero", "leg": 10, "note": "Pesce sul porto di Portopalo"}]}, {"id": "it7", "title": "Siracusa antica: Neapolis e Ortigia", "tags": ["Cultura"], "total": 81, "ret": 37, "legs": [{"slot": "Mattina", "icon": "🌅", "kind": "see", "id": "s12", "name": "Parco Archeologico della Neapolis", "town": "Siracusa", "leg": 37, "note": "Teatro greco e Orecchio di Dioniso al Parco della Neapolis"}, {"slot": "Pranzo", "icon": "🍝", "kind": "eat", "id": "r58", "name": "Fratelli Burgio", "town": "Siracusa", "leg": 3, "note": "Tagliere e prodotti al mercato di Ortigia"}, {"slot": "Pomeriggio", "icon": "☀️", "kind": "see", "id": "s14", "name": "Duomo di Siracusa (Ortigia)", "town": "Siracusa", "leg": 2, "note": "Ortigia: Duomo, Fonte Aretusa e Castello Maniace"}, {"slot": "Cena", "icon": "🌙", "kind": "eat", "id": "r145", "name": "Oz Ortigia", "town": "Siracusa", "leg": 2, "note": "Cena moderna nel cuore di Ortigia"}]}, {"id": "it8", "title": "Ortigia e bagno a Fontane Bianche", "tags": ["Cultura", "Mare"], "total": 88, "ret": 25, "legs": [{"slot": "Mattina", "icon": "🌅", "kind": "see", "id": "s16", "name": "Tempio di Apollo", "town": "Siracusa", "leg": 38, "note": "Mattina tra i vicoli di Ortigia: Tempio di Apollo e mercato"}, {"slot": "Pranzo", "icon": "🍝", "kind": "eat", "id": "r147", "name": "Cod da Saretta, Merluzzo fritto", "town": "Siracusa", "leg": 2, "note": "Pesce fritto e primi di mare informali"}, {"slot": "Pomeriggio", "icon": "☀️", "kind": "beach", "id": "p15", "name": "Fontane Bianche", "town": "Siracusa", "leg": 20, "note": "Pomeriggio di mare a Fontane Bianche"}, {"slot": "Cena", "icon": "🌙", "kind": "eat", "id": "r124", "name": "Mizzika Tenda", "town": "Fontane Bianche", "leg": 3, "note": "Pizzeria all'aperto vicino alla spiaggia"}]}, {"id": "it9", "title": "Monti Iblei: Palazzolo Acreide e Pantalica", "tags": ["Cultura", "Natura"], "total": 84, "ret": 33, "legs": [{"slot": "Mattina", "icon": "🌅", "kind": "see", "id": "s20", "name": "Area Archeologica di Akrai", "town": "Palazzolo Acreide", "leg": 25, "note": "Il teatro greco di Akrai e il barocco di Palazzolo"}, {"slot": "Pranzo", "icon": "🍝", "kind": "eat", "id": "r96", "name": "Trattoria del Gallo", "town": "Palazzolo Acreide", "leg": 2, "note": "Trattoria iblea nel centro di Palazzolo"}, {"slot": "Pomeriggio", "icon": "☀️", "kind": "see", "id": "s19", "name": "Necropoli di Pantalica", "town": "Sortino / Ferla", "leg": 21, "note": "La necropoli rupestre di Pantalica e la valle dell'Anapo"}, {"slot": "Cena", "icon": "🌙", "kind": "eat", "id": "r137", "name": "Antica Osteria", "town": "Sortino", "leg": 3, "note": "Sorprendente pesce in collina a Sortino"}]}, {"id": "it10", "title": "Modica barocca e cioccolato", "tags": ["Cultura"], "total": 87, "ret": 40, "legs": [{"slot": "Mattina", "icon": "🌅", "kind": "see", "id": "s21", "name": "Duomo di San Giorgio", "town": "Modica", "leg": 41, "note": "La scalinata del Duomo di San Giorgio a Modica Alta"}, {"slot": "Pranzo", "icon": "🍝", "kind": "eat", "id": "r156", "name": "Osteria Ricotta & Co mangiare di casa", "town": "Modica", "leg": 2, "note": "Cucina di casa modicana"}, {"slot": "Pomeriggio", "icon": "☀️", "kind": "see", "id": "s22", "name": "Chiesa di San Pietro", "town": "Modica", "leg": 2, "note": "San Pietro, Modica Bassa e il cioccolato di Bonajuto"}, {"slot": "Cena", "icon": "🌙", "kind": "eat", "id": "r151", "name": "Trattoria da Fabio", "town": "Modica", "leg": 2, "note": "Trattoria-gioiello per la cena"}]}, {"id": "it11", "title": "Ragusa Ibla, gioiello barocco", "tags": ["Cultura"], "total": 88, "ret": 41, "legs": [{"slot": "Mattina", "icon": "🌅", "kind": "see", "id": "s25", "name": "Santa Maria delle Scale", "town": "Ragusa", "leg": 41, "note": "Da Santa Maria delle Scale, discesa panoramica a Ibla"}, {"slot": "Pranzo", "icon": "🍝", "kind": "eat", "id": "r43", "name": "I Banchi", "town": "Ragusa Ibla", "leg": 2, "note": "Bottega-bistrot di Ciccio Sultano"}, {"slot": "Pomeriggio", "icon": "☀️", "kind": "see", "id": "s23", "name": "Duomo di San Giorgio (Ragusa Ibla)", "town": "Ragusa Ibla", "leg": 2, "note": "Duomo di San Giorgio e Giardino Ibleo"}, {"slot": "Cena", "icon": "🌙", "kind": "eat", "id": "r48", "name": "Cantunèra Ibla", "town": "Ragusa Ibla", "leg": 2, "note": "Arancini e cucina iblea"}]}, {"id": "it12", "title": "Scicli e le spiagge di Sampieri", "tags": ["Cultura", "Mare"], "total": 134, "ret": 53, "legs": [{"slot": "Mattina", "icon": "🌅", "kind": "see", "id": "s27", "name": "Via Francesco Mormino Penna", "town": "Scicli", "leg": 53, "note": "Via Mormino Penna e Palazzo Beneventano (i luoghi di Montalbano)"}, {"slot": "Pranzo", "icon": "🍝", "kind": "eat", "id": "r49", "name": "Ristorante Baqqalà", "town": "Scicli", "leg": 2, "note": "Il miglior pesce di Scicli"}, {"slot": "Pomeriggio", "icon": "☀️", "kind": "beach", "id": "p20", "name": "Sampieri", "town": "Scicli", "leg": 13, "note": "Sabbia e la fornace Penna a Sampieri"}, {"slot": "Cena", "icon": "🌙", "kind": "eat", "id": "r50", "name": "Ristorante La Grotta", "town": "Scicli", "leg": 13, "note": "Cena a Scicli"}]}, {"id": "it13", "title": "Ispica: la cava e il mare", "tags": ["Cultura", "Mare"], "total": 133, "ret": 47, "legs": [{"slot": "Mattina", "icon": "🌅", "kind": "see", "id": "s28", "name": "Cava d'Ispica (Parco della Forza)", "town": "Ispica / Modica", "leg": 33, "note": "Il canyon di Cava d'Ispica con necropoli e grotte"}, {"slot": "Pranzo", "icon": "🍝", "kind": "eat", "id": "r159", "name": "Agriturismo Ristorante Casa Vacanze Casa Azzurra San Basilio", "town": "Ispica", "leg": 15, "note": "Pranzo della domenica in agriturismo"}, {"slot": "Pomeriggio", "icon": "☀️", "kind": "beach", "id": "p21", "name": "Marina di Modica", "town": "Modica", "leg": 27, "note": "Pomeriggio a Marina di Modica / Santa Maria del Focallo"}, {"slot": "Cena", "icon": "🌙", "kind": "eat", "id": "r165", "name": "TRATTORIA ‘NTA NONNA", "town": "Pozzallo", "leg": 11, "note": "Trattoria casalinga a Pozzallo"}]}];
+
 </script>
 
 <!-- ============ APP LOGIC ============ -->
@@ -756,11 +792,45 @@ const BEACHES = [
   }
 
   /* ---------- RENDER GRIDS ---------- */
+  /* ---------- ITINERARI ---------- */
+  const ITIN_TAGCOLOR={'Cultura':'#8e54b8','Mare':'#1b8a9a','Natura':'#3a7d44','Borgo':'#c0563b'};
+  function fmtDrive(m){ return m>=60 ? ('~'+Math.floor(m/60)+' h'+(m%60? ' '+(m%60)+' min':'')) : ('~'+m+' min'); }
+  function itinCard(it){
+    const tags=it.tags.map(t=>'<span class="itag" style="background:'+(ITIN_TAGCOLOR[t]||'#777')+'">'+esc(t)+'</span>').join('');
+    let tl='<div class="itin-row base">🏡 <b>Partenza</b> dalla Masseria degli Ulivi</div>';
+    it.legs.forEach(l=>{
+      tl+='<div class="itin-drive">🚗 ~'+l.leg+' min</div>'+
+        '<div class="itin-row stop '+l.kind+'"><span class="islot">'+l.icon+' '+esc(l.slot)+'</span>'+
+        '<a class="ilink" href="#" data-goto="'+l.id+'">'+esc(l.name)+'</a>'+
+        (l.town?' <span class="itown">· '+esc(l.town)+'</span>':'')+
+        (l.note?'<div class="inote">'+esc(l.note)+'</div>':'')+'</div>';
+    });
+    tl+='<div class="itin-drive">🚗 ~'+it.ret+' min</div><div class="itin-row base">🏡 <b>Rientro</b> alla base</div>';
+    return '<article class="card itin" data-tags="'+esc(it.tags.join(',').toLowerCase())+'">'+
+      '<div class="itin-head"><div class="itags">'+tags+'</div><h3>'+esc(it.title)+'</h3>'+
+      '<div class="itin-tot">🚗 '+fmtDrive(it.total)+' in auto in giornata · '+it.legs.length+' tappe</div></div>'+
+      '<div class="itin-timeline">'+tl+'</div></article>';
+  }
+  function renderItineraries(){
+    const grid=document.getElementById('grid-itinerari'); if(!grid) return;
+    grid.innerHTML = ITINERARIES.map(itinCard).join('');
+    const tags=[...new Set(ITINERARIES.flatMap(i=>i.tags))];
+    const box=document.getElementById('filter-itinerari');
+    box.innerHTML='<span class="chip active" data-f="*">Tutti</span>'+tags.map(t=>'<span class="chip" data-f="'+esc(t.toLowerCase())+'">'+esc(t)+'</span>').join('');
+    box.addEventListener('click', e=>{
+      const c=e.target.closest('.chip'); if(!c) return;
+      box.querySelectorAll('.chip').forEach(x=>x.classList.remove('active')); c.classList.add('active');
+      const f=c.dataset.f;
+      grid.querySelectorAll('.itin').forEach(card=>{ card.style.display=(f==='*'||(card.dataset.tags||'').includes(f))?'':'none'; });
+    });
+  }
+
   function render(){
     document.getElementById('grid-ristoranti').innerHTML = RESTAURANTS.map(r=>placeCard(r,'food')).join('');
     document.getElementById('grid-vedere').innerHTML = SIGHTS.map(s=>placeCard(s,'see')).join('');
     document.getElementById('grid-spiagge').innerHTML = BEACHES.map(b=>placeCard(b,'beach')).join('');
     document.getElementById('grid-piatti').innerHTML = DISHES.map(dishCard).join('');
+    renderItineraries();
     buildFilters('ristoranti', RESTAURANTS.map(r=>r.type));
     buildBadgeFilters();
     buildFilters('vedere', SIGHTS.map(s=>s.type));
@@ -928,7 +998,7 @@ const BEACHES = [
       inp.addEventListener('input', ()=>applyFilter(key));
     });
     // link incrociati: piatto->ristorante e ristorante->piatto tipico
-    ['grid-piatti','grid-ristoranti'].forEach(gid=>{
+    ['grid-piatti','grid-ristoranti','grid-itinerari'].forEach(gid=>{
       document.getElementById(gid).addEventListener('click', e=>{
         const a = e.target.closest('[data-goto]'); if(!a) return;
         e.preventDefault(); goToCard(a.dataset.goto);
